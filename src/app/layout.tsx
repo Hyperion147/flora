@@ -5,7 +5,7 @@ import { AuthProvider } from '@/app/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import NextTopLoader from 'nextjs-toploader';
 import { Providers } from '@/app/providers';
-import Navigation from '@/app/components/Components';
+import Navigation from '@/app/components/Navigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
