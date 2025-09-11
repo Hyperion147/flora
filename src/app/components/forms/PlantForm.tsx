@@ -21,39 +21,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Upload, Camera, AlertCircle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Panipat area bounds
-const PANIPAT_BOUNDS = {
-    minLat: 29.2,
-    maxLat: 29.6,
-    minLng: 76.7,
-    maxLng: 77.2,
-};
-
-// All fields required
+// All fields required, but no area bounds
 const formSchema = z.object({
     name: z
         .string()
         .min(2, { message: "Plant name must be at least 2 characters." }),
     description: z.string().min(1, { message: "Description is required." }),
-    image: z.instanceof(File, { message: "Plant image is required." }).or(z.undefined()),
-    lat: z
-        .number()
-        .min(PANIPAT_BOUNDS.minLat, {
-            message: `Latitude must be at least ${PANIPAT_BOUNDS.minLat} (Panipat area)`,
-        })
-        .max(PANIPAT_BOUNDS.maxLat, {
-            message: `Latitude must be at most ${PANIPAT_BOUNDS.maxLat} (Panipat area)`,
-        })
-        .optional(),
-    lng: z
-        .number()
-        .min(PANIPAT_BOUNDS.minLng, {
-            message: `Longitude must be at least ${PANIPAT_BOUNDS.minLng} (Panipat area)`,
-        })
-        .max(PANIPAT_BOUNDS.maxLng, {
-            message: `Longitude must be at most ${PANIPAT_BOUNDS.maxLng} (Panipat area)`,
-        })
-        .optional(),
+    image: z
+        .instanceof(File, { message: "Plant image is required." })
+        .or(z.undefined()),
+    lat: z.number({
+        message: "Latitude is required.",
+    }),
+    lng: z.number({
+        message: "Longitude is required.",
+    }),
 });
 
 interface PlantFormProps {
@@ -62,7 +44,6 @@ interface PlantFormProps {
 }
 
 export default function PlantForm({ userId, userName }: PlantFormProps) {
-
     const router = useRouter();
     const queryClient = useQueryClient();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,44 +58,36 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
             lng: undefined,
         },
     });
-
     const handleImageChange = (file: File) => {
+        const MAX_SIZE_MB = 5;
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+            toast.error(
+                "Image should not exceed 5MB. Please select a smaller file."
+            );
+            // Optionally, clear the file input:
+            setPreviewImage(null);
+            form.setValue("image", undefined);
+            return;
+        }
         form.setValue("image", file, { shouldValidate: true });
         setPreviewImage(URL.createObjectURL(file));
     };
 
+    // Set location anywhere in the world
     const getCurrentLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-
-                    // Check if location is within Panipat bounds
-                    if (
-                        lat >= PANIPAT_BOUNDS.minLat &&
-                        lat <= PANIPAT_BOUNDS.maxLat &&
-                        lng >= PANIPAT_BOUNDS.minLng &&
-                        lng <= PANIPAT_BOUNDS.maxLng
-                    ) {
-                        form.setValue("lat", lat);
-                        form.setValue("lng", lng);
-                        toast.success(
-                            "Location captured! You are in Panipat area."
-                        );
-                    } else {
-                        toast.error(
-                            "Location is outside Panipat area. Please use coordinates within Panipat, Haryana."
-                        );
-                        // Clear the coordinates since they're outside bounds
-                        form.setValue("lat", undefined);
-                        form.setValue("lng", undefined);
-                    }
+                    form.setValue("lat", lat);
+                    form.setValue("lng", lng);
+                    toast.success("Location captured!");
                 },
                 (error) => {
                     console.error("Error getting location:", error);
                     toast.error(
-                        "Could not get your location. Please enter Panipat coordinates manually."
+                        "Could not get your location. Please enter coordinates manually."
                     );
                 }
             );
@@ -128,29 +101,15 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
             toast.error("You must be logged in to track plants");
             return;
         }
-
         if (!values.image) {
             toast.error("Plant image is required");
             return;
         }
-
-        if (!values.lat || !values.lng) {
+        if (typeof values.lat !== "number" || typeof values.lng !== "number") {
             toast.error("Latitude and longitude are required");
             return;
         }
-
-        if (
-            values.lat < PANIPAT_BOUNDS.minLat ||
-            values.lat > PANIPAT_BOUNDS.maxLat ||
-            values.lng < PANIPAT_BOUNDS.minLng ||
-            values.lng > PANIPAT_BOUNDS.maxLng
-        ) {
-            toast.error("Plant location must be within Panipat, Haryana area");
-            return;
-        }
-
         setIsSubmitting(true);
-
         try {
             const formData = new FormData();
             formData.append("name", values.name);
@@ -182,7 +141,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
             }
 
             toast.success("Plant tracked successfully!", {
-                description: `${values.name} has been added to your Panipat collection`,
+                description: `${values.name} has been added to your collection`,
             });
 
             // Reset form
@@ -217,23 +176,21 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
                 <CardTitle className="text-xl sm:text-2xl">
-                    Track a New Plant in Panipat
+                    Track a New Plant (Global)
                 </CardTitle>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <AlertCircle className="h-4 w-4" />
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <AlertCircle className="h-3 w-3" />
                     <span>
-                        Plants can only be tracked within Panipat, Haryana area
+                        You can track plants from anywhere in the world!
                     </span>
                 </div>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                                         <form
-                         onSubmit={form.handleSubmit(onSubmit)}
-                         className="space-y-6"
-                     >
-
-
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-6"
+                    >
                         {/* Plant Name */}
                         <FormField
                             control={form.control}
@@ -242,18 +199,18 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                 <FormItem>
                                     <FormLabel>Plant Name *</FormLabel>
                                     <FormControl>
-                                                                                 <Input
-                                             placeholder="Monstera Deliciosa"
-                                             {...field}
-                                             required
-                                         />
+                                        <Input
+                                            placeholder="Monstera Deliciosa"
+                                            {...field}
+                                            required
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                                                {/* Image Upload */}
+                        {/* Image Upload */}
                         <FormField
                             control={form.control}
                             name="image"
@@ -267,10 +224,24 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => {
-                                                        const file = e.target.files?.[0];
+                                                        const file =
+                                                            e.target.files?.[0];
                                                         if (file) {
-                                                            handleImageChange(file);
-                                                            field.onChange(file);
+                                                            handleImageChange(
+                                                                file
+                                                            );
+                                                            if (
+                                                                file.size <=
+                                                                5 * 1024 * 1024
+                                                            ) {
+                                                                field.onChange(
+                                                                    file
+                                                                );
+                                                            } else {
+                                                                field.onChange(
+                                                                    undefined
+                                                                );
+                                                            }
                                                         }
                                                     }}
                                                     className="cursor-pointer"
@@ -279,7 +250,10 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                             </FormControl>
                                             <FormMessage />
                                             <p className="text-xs text-muted-foreground">
-                                                Upload a photo of your plant (required)
+                                                Upload a photo of your plant
+                                                <span className="text-xs text-red-500 pl-1">
+                                                (max. 5MB)
+                                                </span>
                                             </p>
                                             {field.value && (
                                                 <Button
@@ -287,7 +261,9 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => {
-                                                        field.onChange(undefined);
+                                                        field.onChange(
+                                                            undefined
+                                                        );
                                                         setPreviewImage(null);
                                                     }}
                                                     className="w-full"
@@ -318,12 +294,12 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                 <FormItem>
                                     <FormLabel>Description *</FormLabel>
                                     <FormControl>
-                                                                                 <Textarea
-                                             placeholder="Describe your plant (species, care tips, etc.)"
-                                             className="resize-none min-h-[100px]"
-                                             {...field}
-                                             required
-                                         />
+                                        <Textarea
+                                            placeholder="Describe your plant (species, care tips, etc.)"
+                                            className="resize-none min-h-[100px]"
+                                            {...field}
+                                            required
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -335,21 +311,9 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-5 w-5 text-muted-foreground" />
                                 <FormLabel>
-                                    Location (Panipat Area Only) *
+                                    Location (Latitude, Longitude) *
                                 </FormLabel>
                             </div>
-
-                            <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                                <p className="text-sm text-emerald-800 mb-3">
-                                    <strong>Panipat Area Bounds:</strong>
-                                    <br />
-                                    Latitude: {PANIPAT_BOUNDS.minLat}° to{" "}
-                                    {PANIPAT_BOUNDS.maxLat}°<br />
-                                    Longitude: {PANIPAT_BOUNDS.minLng}° to{" "}
-                                    {PANIPAT_BOUNDS.maxLng}°
-                                </p>
-                            </div>
-
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
@@ -360,20 +324,28 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                                 Latitude *
                                             </FormLabel>
                                             <FormControl>
-                                                                                                                                                 <Input
+                                                <Input
                                                     type="number"
                                                     step="any"
                                                     placeholder=""
                                                     {...field}
                                                     required
-                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                ? parseFloat(
+                                                                      e.target
+                                                                          .value
+                                                                  )
+                                                                : undefined
+                                                        )
+                                                    }
                                                 />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-
                                 <FormField
                                     control={form.control}
                                     name="lng"
@@ -383,13 +355,22 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                                 Longitude *
                                             </FormLabel>
                                             <FormControl>
-                                                                                                                                                 <Input
+                                                <Input
                                                     type="number"
-                                                    step="number"
+                                                    step="any"
                                                     placeholder=""
                                                     {...field}
                                                     required
-                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value
+                                                                ? parseFloat(
+                                                                      e.target
+                                                                          .value
+                                                                  )
+                                                                : undefined
+                                                        )
+                                                    }
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -397,7 +378,6 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                     )}
                                 />
                             </div>
-
                             <Button
                                 type="button"
                                 variant="outline"
@@ -405,7 +385,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                 className="w-full sm:w-auto"
                             >
                                 <Camera className="w-4 h-4 mr-2" />
-                                Get My Location (Panipat Only)
+                                Get My Location
                             </Button>
                         </div>
 
@@ -418,12 +398,12 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
                                     <span className="animate-spin">↻</span>
-                                    Tracking Plant in Panipat...
+                                    Tracking Plant...
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
                                     <Upload className="w-4 h-4" />
-                                    Track This Plant in Panipat
+                                    Track This Plant
                                 </span>
                             )}
                         </Button>

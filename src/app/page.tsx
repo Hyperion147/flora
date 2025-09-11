@@ -4,12 +4,14 @@ import PlantSearch from '@/app/components/PlantSearch';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 export default function Home() {
   const { user } = useAuth();
 
   return (
     <main className="min-h-screen">
+      <Toaster />
       {/* Search Section */}
       <section className="pt-8 sm:pt-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

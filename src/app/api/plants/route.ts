@@ -184,7 +184,7 @@ export async function POST(request: Request) {
       const fileName = `${effectiveUserId}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await admin.storage
-        .from('plants')
+        .from('flora_main')
         .upload(fileName, imageFile);
 
       if (uploadError) {
@@ -197,7 +197,7 @@ export async function POST(request: Request) {
 
       // Get public URL
       const { data: urlData } = admin.storage
-        .from('plants')
+        .from('flora_main')
         .getPublicUrl(fileName);
       
       imageUrl = urlData.publicUrl;

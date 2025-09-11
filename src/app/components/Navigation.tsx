@@ -79,7 +79,7 @@ export default function Navigation() {
           onClick={() => router.push('/')}
           className="text-left"
         >
-          <h1 className="text-xl font-bold text-green-600">🌱 Plantation Tracker</h1>
+          <h1 className="text-xl font-bold text-green-600 cursor-pointer">🌱 Plantation Tracker</h1>
         </button>
       </div>
       

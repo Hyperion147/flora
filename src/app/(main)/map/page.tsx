@@ -35,15 +35,7 @@ export default function MapPage() {
     }
   }, [error]);
 
-  // Filter plants to only show those in Panipat area
-  const panipatPlants = plants.filter((plant: Plant) => {
-    const lat = plant.lat;
-    const lng = plant.lng;
-    return (
-      lat >= 29.2 && lat <= 29.6 && 
-      lng >= 76.7 && lng <= 77.2
-    );
-  });
+  const displayedPlants = plants;
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
@@ -51,9 +43,9 @@ export default function MapPage() {
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Panipat Plant Map</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Plant Map</h1>
             <p className="text-muted-foreground">
-              Explore plants tracked in Panipat, Haryana area
+              Explore all plants tracked in the app
             </p>
           </div>
           
@@ -64,20 +56,19 @@ export default function MapPage() {
                 <div className="flex items-center justify-center mb-1">
                   <Leaf className="h-4 w-4 text-emerald-600" />
                 </div>
-                <p className="text-lg sm:text-xl font-bold">{panipatPlants.length}</p>
-                <p className="text-xs text-muted-foreground">Plants in Panipat</p>
+                <p className="text-lg sm:text-xl font-bold">{displayedPlants.length}</p>
+                <p className="text-xs text-muted-foreground">Total Plants</p>
               </CardContent>
             </Card>
-            
             <Card className="text-center sm:block hidden">
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-center mb-1">
                   <MapPin className="h-4 w-4 text-red-600" />
                 </div>
                 <p className="text-lg sm:text-xl font-bold">
-                  {panipatPlants.filter((p: Plant) => p.lat && p.lng).length}
+                  {displayedPlants.filter((p: Plant) => p.lat && p.lng).length}
                 </p>
-                <p className="text-xs text-muted-foreground">Locations</p>
+                <p className="text-xs text-muted-foreground">Geotagged Plants</p>
               </CardContent>
             </Card>
           </div>
@@ -89,7 +80,7 @@ export default function MapPage() {
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2">
             <Map className="h-5 w-5" />
-            Panipat Interactive Map
+            Interactive Plant Map
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -97,24 +88,24 @@ export default function MapPage() {
             <Skeleton className="w-full h-[400px] sm:h-[500px]" />
           ) : (
             <div className="relative">
-              <PlantMap plants={plants} />
+              <PlantMap plants={displayedPlants} />
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Recent Plants Section */}
-      {!loading && panipatPlants.length > 0 && (
+      {!loading && displayedPlants.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Recent Plants in Panipat</h2>
+            <h2 className="text-xl font-semibold">Recent Plants</h2>
             <Button variant="outline" size="sm" asChild>
               <a href="#recent-plants">View All</a>
             </Button>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="recent-plants">
-            {panipatPlants.slice(0, 6).map((plant: Plant) => (
+            {displayedPlants.slice(0, 6).map((plant: Plant) => (
               <Card key={plant.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
@@ -143,7 +134,7 @@ export default function MapPage() {
                         {new Date(plant.created_at).toLocaleDateString()} at {new Date(plant.created_at).toLocaleTimeString()}
                       </p>
                       <p className="text-xs text-emerald-600 font-medium mt-1">
-                        📍 Panipat, Haryana
+                        🌍 Global
                       </p>
                       <p className="text-xs text-blue-600 font-semibold mt-1">
                         PID: {plant.pid}
@@ -158,18 +149,18 @@ export default function MapPage() {
       )}
 
       {/* Empty State */}
-      {!loading && panipatPlants.length === 0 && (
+      {!loading && displayedPlants.length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
             <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
               <MapPin className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold mb-2">No plants in Panipat yet</h3>
+            <h3 className="font-semibold mb-2">No plants found</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Be the first to add a plant to our Panipat community map!
+              Be the first to add a plant to our global map!
             </p>
             <Button asChild>
-              <a href="/dashboard">Add Your First Plant in Panipat</a>
+              <a href="/dashboard">Add Your First Plant</a>
             </Button>
           </CardContent>
         </Card>

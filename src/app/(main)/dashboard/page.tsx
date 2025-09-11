@@ -4,7 +4,6 @@ import { useAuth } from '@/app/context/AuthContext';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PlantForm from '@/app/components/forms/PlantForm';
-import UserNameForm from '@/app/components/forms/UserNameForm';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +13,6 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
-  const [showNameForm, setShowNameForm] = useState(false);
   const [showPlantForm, setShowPlantForm] = useState(false);
 
   const { data: userData, isLoading: isUserDataLoading, refetch: refetchUser } = useQuery({
@@ -47,14 +45,6 @@ export default function DashboardPage() {
     enabled: !!user?.id,
     staleTime: 30 * 1000, // 30 seconds
   });
-
-  useEffect(() => {
-    if (userData === null && !isUserDataLoading) {
-      setShowNameForm(true);
-    } else if (userData) {
-      setShowNameForm(false);
-    }
-  }, [userData, isUserDataLoading]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -91,15 +81,6 @@ export default function DashboardPage() {
           Track your plants and see your collection grow
         </p>
       </div>
-      
-      {showNameForm && (
-        <UserNameForm 
-          onSuccess={() => {
-            setShowNameForm(false);
-            refetchUser();
-          }} 
-        />
-      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Plant Form Section */}
