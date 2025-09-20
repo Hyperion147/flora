@@ -37,7 +37,7 @@ export default function LoginPage() {
               <Leaf className="h-8 w-8 text-emerald-600" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              Welcome to Plantation Tracker
+              Welcome to Flora
             </CardTitle>
             <p className="text-muted-foreground mt-2">
               Sign in to start tracking your plants

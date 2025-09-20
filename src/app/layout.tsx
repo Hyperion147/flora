@@ -10,7 +10,7 @@ import Navigation from '@/app/components/Navigation';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Plantation Tracker',
+  title: 'Flora',
   description: 'Track and manage your plants',
 };
 
