@@ -5,7 +5,8 @@ import { AuthProvider } from '@/app/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import NextTopLoader from 'nextjs-toploader';
 import { Providers } from '@/app/providers';
-import Navigation from '@/app/components/Navigation';
+import Navigation from '@/app/components/Navigation'
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
             <Toaster />
           </AuthProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

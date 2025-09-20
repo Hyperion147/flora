@@ -78,9 +78,10 @@ export default function Navigation() {
         <button
           type="button"
           onClick={() => router.push('/')}
-          className="text-left"
+          className="text-left flex gap-1"
         >
           <h1 className="text-xl font-bold text-green-600 cursor-pointer">🌱 Flora</h1>
+          <p className='text-xs text-green-900 font-semibold'>v1</p>
         </button>
       </div>
       
