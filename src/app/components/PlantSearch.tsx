@@ -32,7 +32,7 @@ function useDebounce<T>(value: T, delay: number): T {
 export default function PlantSearch() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isTyping, setIsTyping] = useState(false);
-    const debouncedSearchTerm = useDebounce(searchTerm, 500); // Increased to 500ms for better UX
+    const debouncedSearchTerm = useDebounce(searchTerm, 300); // Increased to 500ms for better UX
 
     // Track if user is currently typing
     useEffect(() => {
@@ -96,13 +96,13 @@ export default function PlantSearch() {
         <div className="w-full max-w-2xl mx-auto">
             <div className="relative mb-6">
                 <Input
-                    placeholder="Search by name, description, user, or PID..."
+                    placeholder="Search by name, user, or PID"
                     className="pl-4 pr-12 h-12 text-base"
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
                 <div className="my-2">
-                    <p className="text-xs text-muted-foreground">You can search by Plant PID, name, description, or user.</p>
+                    <p className="text-xs text-muted-foreground">You can search by Plant Id, name, or user.</p>
                 </div>
             </div>
 
@@ -137,7 +137,7 @@ export default function PlantSearch() {
                         </p>
                         <Link href="/map">
                             <Button variant="outline" size="sm">
-                                View All on Map
+                                View Map
                             </Button>
                         </Link>
                     </div>
@@ -145,7 +145,7 @@ export default function PlantSearch() {
                     {searchResults.map((plant) => (
                         <Card
                             key={plant.id}
-                            className="hover:shadow-md transition-shadow"
+                            className="hover:shadow-md transition-shadow  mb-5 z-20"
                         >
                             <CardContent className="p-4">
                                 <div className="flex items-start space-x-4">

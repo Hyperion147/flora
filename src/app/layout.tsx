@@ -27,7 +27,7 @@ export default function RootLayout({
             <NextTopLoader color="#10b981" />
             <Navigation />
             {children}
-            <Toaster position="top-right" />
+            <Toaster />
           </AuthProvider>
         </Providers>
       </body>

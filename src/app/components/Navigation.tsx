@@ -21,6 +21,7 @@ import { IoHome } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { MdLeaderboard } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 
 // Define proper type for user metadata
 interface UserMetadata {
@@ -72,14 +73,14 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 bg-white shadow-sm">
+    <nav className="flex items-center justify-between p-4 shadow-sm fixed backdrop-blur-sm w-full">
       <div className="flex items-center space-x-4">
         <button
           type="button"
           onClick={() => router.push('/')}
           className="text-left"
         >
-          <h1 className="text-xl font-bold text-green-600 cursor-pointer">🌱 Plantation Tracker</h1>
+          <h1 className="text-xl font-bold text-green-600 cursor-pointer">🌱 Flora</h1>
         </button>
       </div>
       
@@ -128,6 +129,7 @@ export default function Navigation() {
           <DropdownMenuItem onClick={() => router.push('/')}><IoHome />Home</DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/dashboard')}><MdDashboard />Dashboard</DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/map')}><FaMapLocationDot />Map</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/search')}><FaSearch />Search</DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push('/leaderboard')}><MdLeaderboard />Leaderboard</DropdownMenuItem>
           <DropdownMenuSeparator />
           {user ? (
