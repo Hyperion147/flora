@@ -26,7 +26,7 @@ const formSchema = z.object({
     name: z
         .string()
         .min(2, { message: "Plant name must be at least 2 characters." }),
-    description: z.string().min(1, { message: "Description is required." }),
+    description: z.string(),
     image: z
         .instanceof(File, { message: "Plant image is required." })
         .or(z.undefined()),
@@ -292,7 +292,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Description</FormLabel>
+                                    <FormLabel>Description (optional)</FormLabel>
                                     <FormControl>
                                         <Textarea
                                             placeholder="Describe your plant (species, care tips, etc.)"
