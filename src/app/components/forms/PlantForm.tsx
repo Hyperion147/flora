@@ -292,13 +292,12 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Description *</FormLabel>
+                                    <FormLabel>Description</FormLabel>
                                     <FormControl>
                                         <Textarea
                                             placeholder="Describe your plant (species, care tips, etc.)"
                                             className="resize-none min-h-[100px]"
                                             {...field}
-                                            required
                                         />
                                     </FormControl>
                                     <FormMessage />

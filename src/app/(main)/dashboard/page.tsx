@@ -126,7 +126,7 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-semibold mb-2">Add Your First Plant</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Start tracking your plants with photos, descriptions, and locations
+                      Start tracking your plants with photos, name, and locations
                     </p>
                     <Button onClick={() => setShowPlantForm(true)}>
                       <Plus className="h-4 w-4 mr-2" />
