@@ -62,7 +62,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
         const MAX_SIZE_MB = 5;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
             toast.error(
-                "Image should not exceed 5MB. Please select a smaller file."
+                "Image should not exceed 10MB."
             );
             // Optionally, clear the file input:
             setPreviewImage(null);
@@ -226,23 +226,10 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                                     onChange={(e) => {
                                                         const file =
                                                             e.target.files?.[0];
-                                                        if (file) {
+                                                        if (file)
                                                             handleImageChange(
                                                                 file
                                                             );
-                                                            if (
-                                                                file.size <=
-                                                                5 * 1024 * 1024
-                                                            ) {
-                                                                field.onChange(
-                                                                    file
-                                                                );
-                                                            } else {
-                                                                field.onChange(
-                                                                    undefined
-                                                                );
-                                                            }
-                                                        }
                                                     }}
                                                     className="cursor-pointer"
                                                     required
@@ -252,7 +239,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                             <p className="text-xs text-muted-foreground">
                                                 Upload a photo of your plant
                                                 <span className="text-xs text-red-500 pl-1">
-                                                (max. 5MB)
+                                                    (max. 10MB)
                                                 </span>
                                             </p>
                                             {field.value && (
@@ -292,7 +279,9 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Description (optional)</FormLabel>
+                                    <FormLabel>
+                                        Description (optional)
+                                    </FormLabel>
                                     <FormControl>
                                         <Textarea
                                             placeholder="Describe your plant (species, care tips, etc.)"

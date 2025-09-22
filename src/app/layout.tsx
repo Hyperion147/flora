@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
+import { Toaster as Sonner } from 'sonner';
 import NextTopLoader from 'nextjs-toploader';
 import { Providers } from '@/app/providers';
 import Navigation from '@/app/components/Navigation'
@@ -29,6 +30,7 @@ export default function RootLayout({
             <Navigation />
             {children}
             <Toaster />
+            <Sonner />
           </AuthProvider>
         </Providers>
         <Analytics />
