@@ -59,10 +59,10 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
         },
     });
     const handleImageChange = (file: File) => {
-        const MAX_SIZE_MB = 5;
+        const MAX_SIZE_MB = 10;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
             toast.error(
-                "Image should not exceed 5MB."
+                "Image should not exceed 10MB."
             );
             form.setValue("image", undefined);
             setPreviewImage(null);
@@ -238,7 +238,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                             <p className="text-xs text-muted-foreground">
                                                 Upload a photo of your plant
                                                 <span className="text-xs text-red-500 pl-1">
-                                                    (max. 5MB)
+                                                    (max. 10MB)
                                                 </span>
                                             </p>
                                             {field.value && (
