@@ -168,14 +168,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate coordinates (assuming the same validation as before)
-    if (lat < 29.2 || lat > 29.6 || lng < 76.7 || lng > 77.2) {
-      return NextResponse.json(
-        { error: 'Invalid coordinates' },
-        { status: 400 }
-      );
-    }
-
     let imageUrl: string | null = null;
 
     // Upload image to Supabase Storage if provided (use admin client to avoid policy issues)
