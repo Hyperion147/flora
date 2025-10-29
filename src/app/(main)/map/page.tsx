@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
   loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
+  ssr: false,
 });
 
 export default function MapPage() {
