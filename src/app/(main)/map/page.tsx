@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plant } from "@/lib/types";
-import { PlantCity } from "@/app/components/PlantMap";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MapPin, Leaf, Map } from "lucide-react";
@@ -13,6 +12,9 @@ import { useQuery } from "@tanstack/react-query";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
   loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
+  ssr: false,
+});
+const PlantCity = dynamic(() => import("@/app/components/PlantMap").then(mod => mod.PlantCity), {
   ssr: false,
 });
 
