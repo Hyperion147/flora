@@ -1,39 +1,50 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plant } from '@/lib/types';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { MapPin, Leaf, Map } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plant } from "@/lib/types";
+import { PlantCity } from "@/app/components/PlantMap";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { MapPin, Leaf, Map } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
-const PlantMap = dynamic(() => import('@/app/components/PlantMap'), {
-  ssr: false,
+const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
   loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
 });
 
 export default function MapPage() {
-  const { data: plants = [], isLoading: loading, error } = useQuery({
-    queryKey: ['plants'],
+  const {
+    data: plants = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ["plants"],
     queryFn: async () => {
-      const response = await fetch('/api/plants');
+      const response = await fetch("/api/plants");
       if (!response.ok) {
-        throw new Error('Failed to fetch plants');
+        throw new Error("Failed to fetch plants");
       }
       return response.json();
     },
     staleTime: 30 * 1000, // 30 seconds
   });
 
+  const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+
   useEffect(() => {
     if (error) {
-      console.error('Error fetching plants:', error);
-      toast.error('Failed to load plants');
+      console.error("Error fetching plants:", error);
+      toast.error("Failed to load plants");
     }
   }, [error]);
+
+  const handleCardClick = (plant: Plant) => {
+    setSelectedPlant(prev => (prev?.id === plant.id ? null : plant));
+  };
 
   const displayedPlants = plants;
 
@@ -48,7 +59,7 @@ export default function MapPage() {
               Explore all plants tracked in the app
             </p>
           </div>
-          
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Card className="text-center">
@@ -56,7 +67,9 @@ export default function MapPage() {
                 <div className="flex items-center justify-center mb-1">
                   <Leaf className="h-4 w-4 text-emerald-600" />
                 </div>
-                <p className="text-lg sm:text-xl font-bold">{displayedPlants.length}</p>
+                <p className="text-lg sm:text-xl font-bold">
+                  {displayedPlants.length}
+                </p>
                 <p className="text-xs text-muted-foreground">Total Plants</p>
               </CardContent>
             </Card>
@@ -68,13 +81,15 @@ export default function MapPage() {
                 <p className="text-lg sm:text-xl font-bold">
                   {displayedPlants.filter((p: Plant) => p.lat && p.lng).length}
                 </p>
-                <p className="text-xs text-muted-foreground">Geotagged Plants</p>
+                <p className="text-xs text-muted-foreground">
+                  Geotagged Plants
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-      
+
       {/* Map Card */}
       <Card className="mb-6 sm:mb-8">
         <CardHeader className="pb-4">
@@ -88,7 +103,7 @@ export default function MapPage() {
             <Skeleton className="w-full h-[400px] sm:h-[500px]" />
           ) : (
             <div className="relative">
-              <PlantMap plants={displayedPlants} />
+              <PlantMap plants={displayedPlants} selectedPlant={selectedPlant} />
             </div>
           )}
         </CardContent>
@@ -97,53 +112,63 @@ export default function MapPage() {
       {/* Recent Plants Section */}
       {!loading && displayedPlants.length > 0 && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Recent Plants</h2>
-            <Button variant="outline" size="sm" asChild>
-              <a href="#recent-plants">View All</a>
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="recent-plants">
-            {displayedPlants.slice(0, 6).map((plant: Plant) => (
-              <Card key={plant.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start space-x-3">
-                    {plant.image_url ? (
-                      <img 
-                        src={plant.image_url} 
-                        alt={plant.name}
-                        className="w-12 h-12 object-cover rounded-md flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-emerald-100 rounded-md flex items-center justify-center flex-shrink-0">
-                        <Leaf className="h-6 w-6 text-emerald-600" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm truncate">{plant.name}</h3>
-                      <p className="text-xs text-muted-foreground truncate">
-                        by {plant.user_name}
-                      </p>
-                      {plant.lat && plant.lng && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {plant.lat.toFixed(3)}, {plant.lng.toFixed(3)}
-                        </p>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            id="recent-plants"
+          >
+            {displayedPlants.slice(0, 6).map((plant: Plant) => {
+              const isSelected = selectedPlantId === plant.id;
+              return (
+                <Card
+                  key={plant.id.toString()}
+                  className={`hover:shadow-md transition-shadow cursor-pointer ${
+                    isSelected
+                      ? "ring-2 ring-emerald-500 shadow-lg bg-emerald-50"
+                      : ""
+                  }`}
+                  onClick={() => handleCardClick(plant)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      {plant.image_url ? (
+                        <img
+                          src={plant.image_url}
+                          alt={plant.name}
+                          className="w-12 h-12 object-cover rounded-md flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-emerald-100 rounded-md flex items-center justify-center flex-shrink-0">
+                          <Leaf className="h-6 w-6 text-emerald-600" />
+                        </div>
                       )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(plant.created_at).toLocaleDateString()} at {new Date(plant.created_at).toLocaleTimeString()}
-                      </p>
-                      <p className="text-xs text-emerald-600 font-medium mt-1">
-                        🌍 Global
-                      </p>
-                      <p className="text-xs text-blue-600 font-semibold mt-1">
-                        PID: {plant.pid}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">
+                          {plant.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground truncate">
+                          by {plant.user_name}
+                        </p>
+                        {plant.lat && plant.lng && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {plant.lat.toFixed(3)}, {plant.lng.toFixed(3)}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(plant.created_at).toLocaleDateString()} at{" "}
+                          {new Date(plant.created_at).toLocaleTimeString()}
+                        </p>
+                        <p className="text-xs text-emerald-600 font-medium mt-1">
+                          <PlantCity lat={plant.lat} lng={plant.lng} />
+                        </p>
+                        <p className="text-xs text-blue-600 font-semibold mt-1">
+                          PID: {plant.pid}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}
