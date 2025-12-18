@@ -16,10 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Upload, Camera, AlertCircle } from "lucide-react";
+import { MapPin, Upload, Camera, AlertCircle, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CROP_CATEGORIES from "@/lib/cropCategories";
+import Image from "next/image";
 
 // All fields required, but no area bounds
 const formSchema = z.object({
@@ -27,6 +29,7 @@ const formSchema = z.object({
         .string()
         .min(2, { message: "Plant name must be at least 2 characters." }),
     description: z.string(),
+    category: z.string().optional(),
     image: z
         .instanceof(File, { message: "Plant image is required." })
         .or(z.undefined()),
@@ -41,19 +44,22 @@ const formSchema = z.object({
 interface PlantFormProps {
     userId?: string;
     userName: string;
+    onCancel?: () => void;
+    showCancelButton?: boolean;
 }
 
-export default function PlantForm({ userId, userName }: PlantFormProps) {
-    const router = useRouter();
+export default function PlantForm({ userId, userName, onCancel, showCancelButton = false }: PlantFormProps) {
     const queryClient = useQueryClient();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             description: "",
+            category: "",
             lat: undefined,
             lng: undefined,
         },
@@ -70,6 +76,43 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
         }
         form.setValue("image", file, { shouldValidate: true });
         setPreviewImage(URL.createObjectURL(file));
+    };
+
+    const generatePlantInfo = async () => {
+        const plantName = form.getValues("name");
+        if (!plantName || plantName.length < 2) {
+            toast.error("Please enter a plant name first");
+            return;
+        }
+
+        setIsGenerating(true);
+        try {
+            const response = await fetch("/api/generate-plant-info", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ plantName }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to generate plant information");
+            }
+
+            const data = await response.json();
+            
+            // Update form with generated data
+            form.setValue("category", data.category);
+            form.setValue("description", data.description);
+            
+            const sourceMessage = data.source === 'ai' ? 'AI-generated' : 'Template-based';
+            toast.success(`Plant information generated successfully! (${sourceMessage})`);
+        } catch (error) {
+            console.error("Error generating plant info:", error);
+            toast.error("Failed to generate plant information. Please try again or fill manually.");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     // Set location anywhere in the world
@@ -113,6 +156,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
             const formData = new FormData();
             formData.append("name", values.name);
             formData.append("description", values.description || "");
+            formData.append("category", values.category || "");
             formData.append("lat", values.lat.toString());
             formData.append("lng", values.lng.toString());
             formData.append("userId", userId);
@@ -147,20 +191,18 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
             form.reset({
                 name: "",
                 description: "",
+                category: "",
                 lat: undefined,
                 lng: undefined,
                 image: undefined,
             });
             setPreviewImage(null);
 
-            // Invalidate and refetch queries
+            // Invalidate and refetch queries - this will trigger updates across all components
             await queryClient.invalidateQueries({
                 queryKey: ["userPlants"],
             });
             await queryClient.invalidateQueries({ queryKey: ["plants"] });
-
-            // Refresh the page to update all components
-            router.refresh();
         } catch (error) {
             console.error("Error creating plant:", error);
             toast.error("Failed to track plant", {
@@ -172,7 +214,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
     };
 
     return (
-        <Card className="w-full max-w-2xl mx-auto">
+        <Card className="w-full mx-auto">
             <CardHeader>
                 <CardTitle className="text-xl sm:text-2xl">
                     Track a New Plant (Global)
@@ -197,13 +239,60 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Plant Name *</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Monstera Deliciosa"
-                                            {...field}
-                                            required
-                                        />
-                                    </FormControl>
+                                    <div className="flex gap-2">
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Monstera Deliciosa"
+                                                {...field}
+                                                required
+                                                className="flex-1"
+                                            />
+                                        </FormControl>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={generatePlantInfo}
+                                            disabled={isGenerating || !field.value || field.value.length < 2}
+                                            className="shrink-0"
+                                        >
+                                            {isGenerating ? (
+                                                <span className="animate-spin">↻</span>
+                                            ) : (
+                                                <Sparkles className="h-4 w-4" />
+                                            )}
+                                            {isGenerating ? "Generating..." : "Generate"}
+                                        </Button>
+                                    </div>
+                                    <FormMessage />
+                                    <p className="text-xs text-muted-foreground">
+                                        Enter plant name and click Generate to auto-fill category and description
+                                    </p>
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Category */}
+                        <FormField
+                            control={form.control}
+                            name="category"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {Object.values(CROP_CATEGORIES).map((category) => (
+                                                <SelectItem key={category.label} value={category.label}>
+                                                    {category.label}
+                                                </SelectItem>
+                                            ))}
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -260,7 +349,7 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                         </div>
                                         {previewImage && (
                                             <div className="flex justify-center">
-                                                <img
+                                                <Image
                                                     src={previewImage}
                                                     alt="Plant preview"
                                                     className="w-32 h-32 object-cover rounded-md border"
@@ -369,31 +458,44 @@ export default function PlantForm({ userId, userName }: PlantFormProps) {
                                 type="button"
                                 variant="outline"
                                 onClick={getCurrentLocation}
-                                className="w-full sm:w-auto"
+                                className="w-full"
                             >
                                 <Camera className="w-4 h-4 mr-2" />
                                 Get My Location
                             </Button>
                         </div>
 
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full"
-                        >
-                            {isSubmitting ? (
-                                <span className="flex items-center gap-2">
-                                    <span className="animate-spin">↻</span>
-                                    Tracking Plant...
-                                </span>
-                            ) : (
-                                <span className="flex items-center gap-2">
-                                    <Upload className="w-4 h-4" />
-                                    Track This Plant
-                                </span>
+                        {/* Submit and Cancel Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex-1"
+                            >
+                                {isSubmitting ? (
+                                    <span className="flex items-center gap-2">
+                                        <span className="animate-spin">↻</span>
+                                        Tracking Plant...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2">
+                                        <Upload className="w-4 h-4" />
+                                        Track This Plant
+                                    </span>
+                                )}
+                            </Button>
+                            {showCancelButton && onCancel && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={onCancel}
+                                    disabled={isSubmitting}
+                                    className="flex-1 sm:flex-initial sm:min-w-[120px]"
+                                >
+                                    Cancel
+                                </Button>
                             )}
-                        </Button>
+                        </div>
                     </form>
                 </Form>
             </CardContent>

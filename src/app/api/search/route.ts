@@ -10,7 +10,7 @@ export function OPTIONS() {
 }
 
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/app/config/supabase-server';
+import { createClient } from '@/app/supabase/server';
 import { Plant } from '@/lib/types';
 
 export async function GET(request: Request) {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await createClient();
     
     // Use Supabase's full-text search capabilities
     let plants: Plant[] = [];

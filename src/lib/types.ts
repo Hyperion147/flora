@@ -12,6 +12,7 @@ export type Plant = {
   pid: string;
   name: string;
   description?: string;
+  category?: string;
   image_url?: string | null;
   lat: number;
   lng: number;

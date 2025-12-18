@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MapPin, Leaf, Map } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
   loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
@@ -32,10 +33,11 @@ export default function MapPage() {
       }
       return response.json();
     },
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 5 * 60 * 1000, // 5 minutes - only refetch when new plants are added
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
+  const [selectedPlantId, _setSelectedPlantId] = useState<string | null>(null);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   useEffect(() => {
@@ -134,7 +136,7 @@ export default function MapPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
                       {plant.image_url ? (
-                        <img
+                        <Image
                           src={plant.image_url}
                           alt={plant.name}
                           className="w-12 h-12 object-cover rounded-md flex-shrink-0"

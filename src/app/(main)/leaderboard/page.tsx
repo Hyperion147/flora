@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 interface LeaderboardUser {
   user_id: string;
@@ -22,27 +23,29 @@ interface LeaderboardUser {
 }
 
 export default function LeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: leaderboard = [],
+    isLoading: loading,
+    error,
+  } = useQuery<LeaderboardUser[]>({
+    queryKey: ['leaderboard'],
+    queryFn: async (): Promise<LeaderboardUser[]> => {
+      const response = await fetch('/api/leaderboard');
+      if (!response.ok) {
+        throw new Error('Failed to fetch leaderboard');
+      }
+      return response.json();
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes - leaderboard doesn't change frequently
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const response = await fetch('/api/leaderboard');
-        if (!response.ok) {
-          throw new Error('Failed to fetch leaderboard');
-        }
-        const data = await response.json();
-        setLeaderboard(data);
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        toast.error('Failed to load leaderboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLeaderboard();
-  }, []);
+    if (error) {
+      console.error('Error fetching leaderboard:', error);
+      toast.error('Failed to load leaderboard');
+    }
+  }, [error]);
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-4 w-4 text-yellow-500" />;

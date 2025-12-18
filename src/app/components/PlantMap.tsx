@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useState } from "react";
 import { Plant } from "@/lib/types";
+import Image from "next/image";
 
 const INDIA_CENTER = { lat: 20.5937, lng: 78.9629 };
 
@@ -123,7 +124,7 @@ export default function PlantMap({
               <div className="space-y-2">
                 <h3 className="font-bold">{plant.name}</h3>
                 {plant.image_url && (
-                  <img
+                  <Image
                     src={plant.image_url}
                     alt={plant.name}
                     className="w-full h-32 object-cover rounded"

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/app/context/AuthContext';
-import { supabase } from '@/app/config/supabase';
+import { createClient } from '@/app/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, User } from 'lucide-react';
@@ -39,6 +39,8 @@ export default function Navigation() {
   const userName = userMetadata?.name || user?.email || 'Guest';
 
   const handleSignOut = async () => {
+    const supabase = createClient();
+    
     toast((t) => (
       <div className="space-y-3">
         <p className="text-sm">Are you sure you want to log out?</p>

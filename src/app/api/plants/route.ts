@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/app/config/supabase-server';
-import { getSupabaseAdminClient } from '@/app/config/supabase-admin';
+import { createClient } from '@/app/supabase/server';
+import { getSupabaseAdminClient } from '@/app/supabase/middleware';
 
 export function OPTIONS() {
   return new Response(null, {
@@ -18,7 +18,7 @@ export function OPTIONS() {
 
 export async function DELETE(request: Request) {
   try {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await createClient();
     
     // Get current session/user from cookies
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     const queryParam = searchParams.get('q');
     const userId = searchParams.get('userId');
 
-    const supabase = await getSupabaseServerClient();
+    const supabase = await createClient();
     let query = supabase.from('plants').select('*');
 
     if (userId) {
@@ -136,7 +136,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await createClient();
     const admin = getSupabaseAdminClient();
     
     const formData = await request.formData();
@@ -156,6 +156,7 @@ export async function POST(request: Request) {
 
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
+    const category = formData.get('category') as string;
     const lat = parseFloat(formData.get('lat') as string);
     const lng = parseFloat(formData.get('lng') as string);
     const imageFile = formData.get('image') as File | null;
@@ -263,6 +264,7 @@ export async function POST(request: Request) {
       .insert({
         name,
         description,
+        category: category || null,
         user_id: effectiveUserId,
         user_name: effectiveUserName,
         lat,
@@ -286,6 +288,7 @@ export async function POST(request: Request) {
         .insert({
           name,
           description,
+          category: category || null,
           user_id: effectiveUserId,
           user_name: effectiveUserName,
           lat,
@@ -310,6 +313,7 @@ export async function POST(request: Request) {
         .insert({
           name,
           description,
+          category: category || null,
           user_id: effectiveUserId,
           user_name: effectiveUserName,
           lat,

@@ -11,6 +11,7 @@ import { Plant } from "@/lib/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 // Debounce hook with improved implementation
 function useDebounce<T>(value: T, delay: number): T {
@@ -59,7 +60,7 @@ export default function PlantSearch() {
             return await response.json();
         },
         enabled: debouncedSearchTerm.trim().length > 0,
-        staleTime: 2 * 60 * 1000, // 2 minutes
+        staleTime: 5 * 60 * 1000, // 5 minutes - search results don't change frequently
         retry: 2,
     });
 
@@ -150,7 +151,7 @@ export default function PlantSearch() {
                             <CardContent className="p-4">
                                 <div className="flex items-start space-x-4">
                                     {plant.image_url ? (
-                                        <img
+                                        <Image
                                             src={plant.image_url}
                                             alt={plant.name}
                                             className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md flex-shrink-0"

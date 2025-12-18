@@ -2,15 +2,14 @@
 
 import { useAuth } from '@/app/context/AuthContext';
 import { redirect } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Plant } from '@/lib/types';
-import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Users, Leaf, TrendingUp, MapPin } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 // Dynamically import the map component with proper props
 const PlantMap = dynamic(() => import('@/app/components/PlantMap'), {
@@ -18,57 +17,54 @@ const PlantMap = dynamic(() => import('@/app/components/PlantMap'), {
   loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
 });
 
-interface AdminStats {
-  total_plants: number;
-  total_users: number;
-  recent_plants: number;
-}
-
-interface ChartData {
-  week: string;
-  plants: number;
-}
-
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [plants, setPlants] = useState<Plant[]>([]);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // Fetch plants data
+  const { data: plants = [], isLoading: plantsLoading } = useQuery({
+    queryKey: ['admin-plants'],
+    queryFn: async () => {
+      const response = await fetch('/api/plants');
+      if (!response.ok) throw new Error('Failed to fetch plants');
+      return response.json();
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
+  });
+
+  // Fetch admin stats
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    },
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000,
+  });
+
+  // Fetch chart data
+  const { data: chartData = [], isLoading: chartLoading } = useQuery({
+    queryKey: ['admin-chart'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/chart');
+      if (!response.ok) throw new Error('Failed to fetch chart data');
+      return response.json();
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
+  });
+
+  const loading = plantsLoading || statsLoading || chartLoading;
 
   useEffect(() => {
     if (!authLoading && !user) {
       redirect('/login');
     }
-
-    const fetchData = async () => {
-      try {
-        // Fetch plants data for the map
-        const plantsResponse = await fetch('/api/plants');
-        if (!plantsResponse.ok) throw new Error('Failed to fetch plants');
-        const plantsData = await plantsResponse.json();
-        setPlants(plantsData);
-
-        // Fetch admin stats
-        const statsResponse = await fetch('/api/admin/stats');
-        if (!statsResponse.ok) throw new Error('Failed to fetch stats');
-        const statsData = await statsResponse.json();
-        setStats(statsData);
-
-        // Fetch chart data
-        const chartResponse = await fetch('/api/admin/chart');
-        if (!chartResponse.ok) throw new Error('Failed to fetch chart data');
-        const chartData = await chartResponse.json();
-        setChartData(chartData);
-      } catch (error) {
-        console.error('Error fetching admin data:', error);
-        toast.error('Failed to load admin data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
   }, [user, authLoading]);
 
   if (authLoading) {

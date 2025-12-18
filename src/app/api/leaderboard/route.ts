@@ -10,11 +10,11 @@ export function OPTIONS() {
 }
 
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/app/config/supabase';
+import { createClient } from '@/app/supabase/client';
 
 export async function GET() {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = createClient();
     
     // Get plants with user information and count by user
     const { data: plants, error } = await supabase

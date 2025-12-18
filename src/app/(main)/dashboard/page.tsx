@@ -10,26 +10,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Leaf, Calendar, User } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [showPlantForm, setShowPlantForm] = useState(false);
 
-  const { data: userData, isLoading: isUserDataLoading, refetch: refetchUser } = useQuery({
-    queryKey: ['userData', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      
-      const response = await fetch(`/api/user/${user.id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-      return response.json();
-    },
-    enabled: !!user?.id,
-    staleTime: 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
-  });
+  // Get user data directly from auth context
+  const userData = user ? {
+    id: user.id,
+    email: user.email || '',
+    name: user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+  } : null;
 
   const { data: userPlants, isLoading: isPlantsLoading } = useQuery({
     queryKey: ['userPlants', user?.id],
@@ -43,7 +36,8 @@ export default function DashboardPage() {
       return response.json();
     },
     enabled: !!user?.id,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 5 * 60 * 1000, // 5 minutes - only refetch when plants are added
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   useEffect(() => {
@@ -52,10 +46,10 @@ export default function DashboardPage() {
     }
   }, [user, loading]);
 
-  if (loading || isUserDataLoading) {
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="space-y-6">
+      <div className="container mx-auto px-8 py-6 sm:py-8">
+        <div className="space-y-6 pt-0 md:pt-10">
           <Skeleton className="h-8 w-64" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Skeleton className="h-[400px] w-full" />
@@ -73,9 +67,9 @@ export default function DashboardPage() {
   const displayName = userData?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Guest';
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 pt-20">
+    <div className="container mx-auto px-8 py-6 sm:py-8">
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
+      <div className="mb-6 sm:mb-8 pt-0 md:pt-10">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome, {displayName}!</h1>
         <p className="text-muted-foreground">
           Track your plants and see your collection grow
@@ -103,19 +97,12 @@ export default function DashboardPage() {
           </div>
           
           {showPlantForm ? (
-            <div className="space-y-4">
-              <PlantForm 
-                userId={user?.id} 
-                userName={displayName} 
-              />
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPlantForm(false)}
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-            </div>
+            <PlantForm 
+              userId={user?.id} 
+              userName={displayName}
+              onCancel={() => setShowPlantForm(false)}
+              showCancelButton={true}
+            />
           ) : (
             <Card className="hidden sm:block">
               <CardContent className="p-6">
@@ -176,7 +163,7 @@ export default function DashboardPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-4">
                       {plant.image_url ? (
-                        <img 
+                        <Image 
                           src={plant.image_url} 
                           alt={plant.name}
                           className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md flex-shrink-0"
