@@ -166,6 +166,8 @@ export default function DashboardPage() {
                         <Image 
                           src={plant.image_url} 
                           alt={plant.name}
+                          width={64}
+                          height={64}
                           className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md flex-shrink-0"
                         />
                       ) : (

@@ -127,6 +127,8 @@ export default function PlantMap({
                   <Image
                     src={plant.image_url}
                     alt={plant.name}
+                    width={300}
+                    height={128}
                     className="w-full h-32 object-cover rounded"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";

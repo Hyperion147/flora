@@ -173,27 +173,52 @@ export async function POST(request: Request) {
 
     // Upload image to Supabase Storage if provided (use admin client to avoid policy issues)
     if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${effectiveUserId}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await admin.storage
-        .from('flora_main')
-        .upload(fileName, imageFile);
+      try {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `plants/${effectiveUserId}/${Date.now()}.${fileExt}`;
+        
+        // Try multiple bucket names in case of configuration differences
+        const bucketNames = ['plants', 'flora_main', 'crops', 'images'];
+        let uploadSuccess = false;
+        let finalBucketName = '';
+        
+        for (const bucketName of bucketNames) {
+          const { error: uploadError } = await admin.storage
+            .from(bucketName)
+            .upload(fileName, imageFile);
 
-      if (uploadError) {
-        console.error('Error uploading image:', uploadError);
+          if (!uploadError) {
+            uploadSuccess = true;
+            finalBucketName = bucketName;
+            break;
+          } else {
+            console.log(`Failed to upload to bucket '${bucketName}':`, uploadError.message);
+          }
+        }
+
+        if (!uploadSuccess) {
+          console.error('Failed to upload to any storage bucket');
+          return NextResponse.json(
+            { error: 'Failed to upload image', details: 'No accessible storage bucket found' },
+            { status: 500 }
+          );
+        }
+
+        // Get public URL
+        const { data: urlData } = admin.storage
+          .from(finalBucketName)
+          .getPublicUrl(fileName);
+        
+        imageUrl = urlData.publicUrl;
+        console.log('Image uploaded successfully to bucket:', finalBucketName);
+        
+      } catch (error) {
+        console.error('Exception during image upload:', error);
         return NextResponse.json(
-          { error: 'Failed to upload image', details: uploadError.message },
+          { error: 'Failed to upload image', details: 'Upload process failed' },
           { status: 500 }
         );
       }
-
-      // Get public URL
-      const { data: urlData } = admin.storage
-        .from('flora_main')
-        .getPublicUrl(fileName);
-      
-      imageUrl = urlData.publicUrl;
     }
 
     // Save to Supabase Database

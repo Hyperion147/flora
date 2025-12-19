@@ -305,7 +305,7 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Plant Image *</FormLabel>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                                         <div className="space-y-2">
                                             <FormControl>
                                                 <Input
@@ -341,7 +341,6 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                                                         );
                                                         setPreviewImage(null);
                                                     }}
-                                                    className="w-full"
                                                 >
                                                     Remove Image
                                                 </Button>
@@ -352,6 +351,8 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                                                 <Image
                                                     src={previewImage}
                                                     alt="Plant preview"
+                                                    width={128}
+                                                    height={128}
                                                     className="w-32 h-32 object-cover rounded-md border"
                                                 />
                                             </div>

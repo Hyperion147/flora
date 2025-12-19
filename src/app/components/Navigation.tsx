@@ -75,7 +75,7 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 shadow-sm fixed backdrop-blur-sm w-full">
+    <nav className="flex items-center justify-between p-4 shadow-sm backdrop-blur-sm w-full">
       <div className="flex items-center space-x-4">
         <button
           type="button"

@@ -139,6 +139,8 @@ export default function MapPage() {
                         <Image
                           src={plant.image_url}
                           alt={plant.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 object-cover rounded-md flex-shrink-0"
                         />
                       ) : (
