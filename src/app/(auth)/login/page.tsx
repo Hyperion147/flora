@@ -2,11 +2,26 @@
 
 import GoogleLoginButton from '@/app/components/auth/GoogleAuth';
 import { useAuth } from '@/app/context/AuthContext';
-import { redirect } from 'next/navigation';
-import { useEffect } from 'react';
+import { redirect, useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
+
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function ErrorHandler() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+
+  useEffect(() => {
+    if (error === 'auth_callback_error') {
+      toast.error('Authentication failed. Please try again.');
+    }
+  }, [error]);
+
+  return null;
+}
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
@@ -30,6 +45,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100 p-4">
+      <Suspense fallback={null}>
+        <ErrorHandler />
+      </Suspense>
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center pb-6">
