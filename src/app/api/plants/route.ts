@@ -3,7 +3,7 @@ export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/app/supabase/server';
-import { getSupabaseAdminClient } from '@/app/supabase/middleware';
+import { getSupabaseAdminClient } from '@/app/supabase/admin';
 
 export function OPTIONS() {
   return new Response(null, {
