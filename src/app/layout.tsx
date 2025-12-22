@@ -4,7 +4,6 @@ import './globals.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import { Toaster as Sonner } from 'sonner';
-import NextTopLoader from 'nextjs-toploader';
 import { Providers } from '@/app/providers';
 import Navigation from '@/app/components/Navigation'
 import { Analytics } from "@vercel/analytics/next"
@@ -26,7 +25,6 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <AuthProvider>
-            <NextTopLoader color="#10b981" />
             <Navigation />
             {children}
             <Toaster />

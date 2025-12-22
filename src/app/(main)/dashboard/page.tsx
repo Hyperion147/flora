@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const displayName = userData?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Guest';
 
   return (
-    <div className="container mx-auto px-8 py-6 sm:py-8">
+    <div className="container mx-auto px-20 pb-6">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-0 md:pt-10">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome, {displayName}!</h1>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
             </div>
           ) : userPlants && userPlants.length > 0 ? (
             <div className="space-y-4">
-              {userPlants.slice(0, 5).map((plant: { id: string; image_url?: string; name: string; description?: string; created_at: string; pid: number | string; }) => (
+              {userPlants.slice(0, 4).map((plant: { id: string; image_url?: string; name: string; description?: string; created_at: string; pid: number | string; }) => (
                 <Card key={plant.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-4">
@@ -194,13 +194,10 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
               ))}
-              {userPlants.length > 5 && (
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">
-                    And {userPlants.length - 5} more plants...
-                  </p>
+              {userPlants.length > 4 && (
+                <div className="w-full">
                   <Link href="/map">
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-2 w-full">
                       View All Plants
                     </Button>
                   </Link>

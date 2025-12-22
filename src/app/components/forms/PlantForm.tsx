@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Upload, Camera, AlertCircle, Sparkles } from "lucide-react";
+import { MapPin, Upload, Camera, AlertCircle, Sparkles, MapPinCheck } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import CROP_CATEGORIES from "@/lib/cropCategories";
@@ -53,6 +53,8 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
+    const [address, setAddress] = useState<string | null>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -115,22 +117,49 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
         }
     };
 
-    // Set location anywhere in the world
-    const getCurrentLocation = () => {
+
+     const getCurrentLocation = () => {
         if (navigator.geolocation) {
+            setIsLocating(true);
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     form.setValue("lat", lat);
                     form.setValue("lng", lng);
+
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                        );
+                        const data = await response.json();
+
+                        const addr = data.address;
+                        const town = addr.village || addr.town || addr.suburb || addr.neighbourhood || "";
+                        const city = addr.city || addr.district || addr.state_district || addr.county || "";
+
+                        if (town && city) {
+                            setAddress(`${town}, ${city}`);
+                        } else if (city) {
+                            setAddress(city);
+                        } else if (town) {
+                            setAddress(town);
+                        } else {
+                            setAddress(data.display_name.split(',')[0]);
+                        }
+                    } catch (err) {
+                        console.error("Reverse geocoding error:", err);
+                    }
+
                     toast.success("Location captured!");
+                    setIsLocating(false);
                 },
                 (error) => {
                     console.error("Error getting location:", error);
                     toast.error(
                         "Could not get your location. Please enter coordinates manually."
                     );
+                    setIsLocating(false);
                 }
             );
         } else {
@@ -388,81 +417,32 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-5 w-5 text-muted-foreground" />
                                 <FormLabel>
-                                    Location (Latitude, Longitude) *
+                                    Location *
                                 </FormLabel>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="lat"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-sm">
-                                                Latitude *
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step="any"
-                                                    placeholder=""
-                                                    {...field}
-                                                    required
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value
-                                                                ? parseFloat(
-                                                                      e.target
-                                                                          .value
-                                                                  )
-                                                                : undefined
-                                                        )
-                                                    }
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="lng"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-sm">
-                                                Longitude *
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step="any"
-                                                    placeholder=""
-                                                    {...field}
-                                                    required
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value
-                                                                ? parseFloat(
-                                                                      e.target
-                                                                          .value
-                                                                  )
-                                                                : undefined
-                                                        )
-                                                    }
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </div>
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="secondary"
                                 onClick={getCurrentLocation}
-                                className="w-full"
+                                className="w-full relative overflow-hidden group text-black border border-emerald-100/50 text-[10px] font-bold uppercase tracking-wider h-11 px-4 hover:bg-emerald-100 transition-all"
+                                disabled={isLocating}
                             >
-                                <Camera className="w-4 h-4 mr-2" />
-                                Get My Location
+                                {isLocating ? (
+                                    <span className="flex items-center gap-2">
+                                        <span className="animate-spin text-emerald-600">↻</span>
+                                        Locating...
+                                    </span>
+                                ) : address ? (
+                                    <span className="flex items-center gap-2 text-emerald-700 font-bold">
+                                        <MapPinCheck className="w-4 h-4" />
+                                        {address}
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2 group-hover:text-emerald-600 transition-colors">
+                                        <Camera className="w-4 h-4" />
+                                        Get My Location
+                                    </span>
+                                )}
                             </Button>
                         </div>
 

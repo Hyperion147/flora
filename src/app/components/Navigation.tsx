@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,19 +9,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/app/context/AuthContext';
-import { createClient } from '@/app/supabase/client';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LogOut, User } from 'lucide-react';
-import toast from 'react-hot-toast';
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClient } from "@/app/supabase/client";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { LogOut, User } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { IoHome } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { MdLeaderboard } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 // Define proper type for user metadata
 interface UserMetadata {
@@ -33,118 +34,179 @@ interface UserMetadata {
 export default function Navigation() {
   const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    // Use window as scroll container for most web apps
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      if (scrollPosition > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  if (pathname === "/login") return null;
 
   // Safely get user metadata with proper typing
   const userMetadata = user?.user_metadata as UserMetadata | undefined;
-  const userName = userMetadata?.name || user?.email || 'Guest';
+  const userName = userMetadata?.name || user?.email || "Guest";
 
   const handleSignOut = async () => {
     const supabase = createClient();
-    
-    toast((t) => (
-      <div className="space-y-3">
-        <p className="text-sm">Are you sure you want to log out?</p>
-        <div className="flex gap-2 justify-center">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={async () => {
-              toast.dismiss(t.id);
-              try {
-                await supabase.auth.signOut();
-                toast.success('Logged out');
-                router.push('/');
-              } catch (error) {
-                console.error('Error signing out:', error);
-                toast.error('Failed to log out');
-              }
-            }}
-          >
-            Log out
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toast.dismiss(t.id)}
-          >
-            Cancel
-          </Button>
+
+    toast(
+      (t) => (
+        <div className="space-y-3">
+          <p className="text-sm">Are you sure you want to log out?</p>
+          <div className="flex gap-2 justify-center">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await supabase.auth.signOut();
+                  toast.success("Logged out");
+                  router.push("/");
+                } catch (error) {
+                  console.error("Error signing out:", error);
+                  toast.error("Failed to log out");
+                }
+              }}
+            >
+              Log out
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
-      </div>
-    ), { duration: 60000 });
+      ),
+      { duration: 60000 }
+    );
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 shadow-sm backdrop-blur-sm w-full">
-      <div className="flex items-center space-x-4">
-        <button
-          type="button"
-          onClick={() => router.push('/')}
-          className="text-left flex gap-1"
-        >
-          <h1 className="text-xl font-bold text-green-600 cursor-pointer">🌱 Flora</h1>
-          <p className='text-xs text-green-900 font-semibold'>v1.1</p>
-        </button>
-      </div>
-      
-      <div className="hidden md:flex items-center gap-2">
-        <Link href="/dashboard">
-          <Button variant="ghost" size="sm">Dashboard</Button>
-        </Link>
-        <Link href="/map">
-          <Button variant="ghost" size="sm">Map</Button>
-        </Link>
-        <Link href="/leaderboard">
-          <Button variant="ghost" size="sm">Leaderboard</Button>
-        </Link>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        {!user && (
-          <Link href="/login">
-            <Button size="sm">Sign In</Button>
+    <nav
+      className={`mx-auto bg-transparent transition-all duration-300 shadow-sm ${
+        isScrolled
+          ? "fixed left-1/2 -translate-x-1/2 max-w-[40vw] md:max-w-3xl w-full top-5 rounded-md z-9999 backdrop-blur-md shadow-sm drop-shadow-transparent shadow-gray-700 dark:bg-slate-900/80 dark:text-white"
+          : "w-full"
+      }`}
+    >
+      <div
+        className={`mx-auto flex w-full items-center justify-between p-4 transition-all duration-300 ${
+          isScrolled ? "py-2" : "py-4"
+        }`}
+      >
+        <div className="flex items-center space-x-4">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="text-left flex gap-1"
+          >
+            <h1 className="text-xl font-bold text-green-600 cursor-pointer">
+              🌱 Flora
+            </h1>
+            <p className="text-xs text-green-900 font-semibold">v1.2</p>
+          </button>
+        </div>
+
+        <div className="hidden md:flex items-center gap-2">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm">
+              Dashboard
+            </Button>
           </Link>
-        )}
-      
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={userMetadata?.avatar_url} alt={userName} />
-              <AvatarFallback>
-                {user ? (userMetadata?.name?.charAt(0) || user.email?.charAt(0)) : <User className="h-4 w-4" />}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {userName}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {user ? user.email : 'Not signed in'}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push('/')}><IoHome />Home</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/dashboard')}><MdDashboard />Dashboard</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/map')}><FaMapLocationDot />Map</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/search')}><FaSearch />Search</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/leaderboard')}><MdLeaderboard />Leaderboard</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {user ? (
-            <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem onClick={() => router.push('/login')}>Sign In</DropdownMenuItem>
+          <Link href="/map">
+            <Button variant="ghost" size="sm">
+              Map
+            </Button>
+          </Link>
+          <Link href="/leaderboard">
+            <Button variant="ghost" size="sm">
+              Leaderboard
+            </Button>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {!user && (
+            <Link href="/login">
+              <Button size="sm">Sign In</Button>
+            </Link>
           )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={userMetadata?.avatar_url} alt={userName} />
+                  <AvatarFallback>
+                    {user ? (
+                      userMetadata?.name?.charAt(0) || user.email?.charAt(0)
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user ? user.email : "Not signed in"}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/")}>
+                <IoHome />
+                Home
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                <MdDashboard />
+                Dashboard
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/map")}>
+                <FaMapLocationDot />
+                Map
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/search")}>
+                <FaSearch />
+                Search
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/leaderboard")}>
+                <MdLeaderboard />
+                Leaderboard
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {user ? (
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => router.push("/login")}>
+                  Sign In
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </nav>
   );
