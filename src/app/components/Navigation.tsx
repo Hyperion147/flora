@@ -1,7 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClient } from "@/app/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,25 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClient } from "@/app/supabase/client";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LogOut, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useRef } from "react";
 import toast from "react-hot-toast";
-
-import { IoHome } from "react-icons/io5";
-import { MdDashboard } from "react-icons/md";
 import { FaMapLocationDot } from "react-icons/fa6";
-import { MdLeaderboard } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { IoHome } from "react-icons/io5";
+import { MdDashboard, MdLeaderboard } from "react-icons/md";
 
 // Define proper type for user metadata
 interface UserMetadata {
   name?: string;
   avatar_url?: string;
-  [key: string]: unknown; // Allow for other properties
+  [key: string]: unknown;
 }
 
 export default function Navigation() {
@@ -36,25 +37,55 @@ export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [isScrolled, setIsScrolled] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Use window as scroll container for most web apps
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      if (scrollPosition > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  useGSAP(
+    () => {
+      if (pathname === "/login") return;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Reset any existing animations/styles
+      gsap.set(navRef.current, {
+        width: "100%",
+        maxWidth: "100%",
+        top: 0,
+        backgroundColor: "transparent",
+        borderRadius: 0,
+        padding: "0px",
+        border: "1px solid rgba(214, 192, 192, 0.3)",
+        boxShadow: "none",
+        backdropFilter: "blur(0px)",
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "50px top",
+          scrub: 1,
+        },
+      });
+
+      tl.to(navRef.current, {
+        width: "90%",
+        maxWidth: "800px",
+        top: "16px",
+        borderRadius: "12px",
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        padding: "2px 8px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+        backdropFilter: "blur(12px)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        ease: "power2.out",
+      });
+    },
+    { scope: navRef, dependencies: [pathname] }
+  );
 
   if (pathname === "/login") return null;
 
-  // Safely get user metadata with proper typing
   const userMetadata = user?.user_metadata as UserMetadata | undefined;
   const userName = userMetadata?.name || user?.email || "Guest";
 
@@ -63,8 +94,10 @@ export default function Navigation() {
 
     toast(
       (t) => (
-        <div className="space-y-3">
-          <p className="text-sm">Are you sure you want to log out?</p>
+        <div className="space-y-3 p-1">
+          <p className="text-sm font-medium">
+            Are you sure you want to log out?
+          </p>
           <div className="flex gap-2 justify-center">
             <Button
               variant="destructive"
@@ -73,7 +106,7 @@ export default function Navigation() {
                 toast.dismiss(t.id);
                 try {
                   await supabase.auth.signOut();
-                  toast.success("Logged out");
+                  toast.success("Logged out successfully");
                   router.push("/");
                 } catch (error) {
                   console.error("Error signing out:", error);
@@ -99,44 +132,63 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`mx-auto bg-transparent transition-all duration-300 shadow-sm ${
-        isScrolled
-          ? "fixed left-1/2 -translate-x-1/2 max-w-[40vw] md:max-w-3xl w-full top-5 rounded-md z-9999 backdrop-blur-md shadow-sm drop-shadow-transparent shadow-gray-700 dark:bg-slate-900/80 dark:text-white"
-          : "w-full"
-      }`}
+      ref={navRef}
+      className="fixed left-1/2 -translate-x-1/2 z-[9999] transition-colors duration-300 dark:bg-slate-900/80 dark:text-white dark:border-white/10"
     >
       <div
-        className={`mx-auto flex w-full items-center justify-between p-4 transition-all duration-300 ${
-          isScrolled ? "py-2" : "py-4"
-        }`}
+        ref={containerRef}
+        className="mx-auto flex w-full items-center justify-between p-4"
       >
         <div className="flex items-center space-x-4">
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="text-left flex gap-1"
+            className="text-left flex gap-1 group"
           >
-            <h1 className="text-xl font-bold text-green-600 cursor-pointer">
+            <h1 className="text-xl font-bold text-green-600 cursor-pointer group-hover:scale-105 transition-transform">
               🌱 Flora
             </h1>
-            <p className="text-xs text-green-900 font-semibold">v1.2</p>
+            <p className="text-xs text-green-900 font-semibold dark:text-green-400 opacity-70">
+              v1.2
+            </p>
           </button>
         </div>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+            >
               Dashboard
             </Button>
           </Link>
           <Link href="/map">
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+            >
               Map
             </Button>
           </Link>
           <Link href="/leaderboard">
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+            >
               Leaderboard
+            </Button>
+          </Link>
+          <Link href="/search">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+            >
+              Search
             </Button>
           </Link>
         </div>
@@ -144,16 +196,24 @@ export default function Navigation() {
         <div className="flex items-center gap-2">
           {!user && (
             <Link href="/login">
-              <Button size="sm">Sign In</Button>
+              <Button
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 rounded-lg"
+              >
+                Sign In
+              </Button>
             </Link>
           )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"
+              >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={userMetadata?.avatar_url} alt={userName} />
-                  <AvatarFallback>
+                  <AvatarFallback className="bg-emerald-100 text-emerald-700">
                     {user ? (
                       userMetadata?.name?.charAt(0) || user.email?.charAt(0)
                     ) : (
@@ -163,44 +223,67 @@ export default function Navigation() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 mt-2" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  <p className="text-sm font-semibold leading-none">
+                    {userName}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">
                     {user ? user.email : "Not signed in"}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/")}>
-                <IoHome />
+              <DropdownMenuItem
+                onClick={() => router.push("/")}
+                className="cursor-pointer"
+              >
+                <IoHome className="mr-2 h-4 w-4" />
                 Home
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                <MdDashboard />
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard")}
+                className="cursor-pointer"
+              >
+                <MdDashboard className="mr-2 h-4 w-4" />
                 Dashboard
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/map")}>
-                <FaMapLocationDot />
+              <DropdownMenuItem
+                onClick={() => router.push("/map")}
+                className="cursor-pointer"
+              >
+                <FaMapLocationDot className="mr-2 h-4 w-4" />
                 Map
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/search")}>
-                <FaSearch />
+              <DropdownMenuItem
+                onClick={() => router.push("/search")}
+                className="cursor-pointer"
+              >
+                <FaSearch className="mr-2 h-4 w-4" />
                 Search
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/leaderboard")}>
-                <MdLeaderboard />
+              <DropdownMenuItem
+                onClick={() => router.push("/leaderboard")}
+                className="cursor-pointer"
+              >
+                <MdLeaderboard className="mr-2 h-4 w-4" />
                 Leaderboard
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {user ? (
-                <DropdownMenuItem onClick={handleSignOut}>
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={() => router.push("/login")}>
+                <DropdownMenuItem
+                  onClick={() => router.push("/login")}
+                  className="cursor-pointer"
+                >
                   Sign In
                 </DropdownMenuItem>
               )}

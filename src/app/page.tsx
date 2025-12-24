@@ -31,7 +31,7 @@ export default function Home() {
     };
 
     return (
-        <main className="flex flex-col min-h-screen bg-transparent overflow-x-hidden px-26">
+        <main className="flex flex-col min-h-screen bg-transparent overflow-x-hidden px-26 pt-16">
             {/* Hero Section */}
             <section className="relative w-full pt-5 flex flex-col items-center justify-center">
                 <div className="container relative z-10 mx-auto">

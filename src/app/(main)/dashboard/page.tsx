@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const displayName = userData?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Guest';
 
   return (
-    <div className="container mx-auto px-20 pb-6">
+    <div className="container mx-auto px-20 pb-6 pt-16">
       {/* Header */}
       <div className="mb-6 sm:mb-8 pt-0 md:pt-10">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome, {displayName}!</h1>
