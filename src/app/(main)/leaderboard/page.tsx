@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { IsMobile } from '@/lib/isMobile';
 
 interface LeaderboardUser {
   user_id: string;
@@ -40,6 +41,7 @@ export default function LeaderboardPage() {
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
+
   useEffect(() => {
     if (error) {
       console.error('Error fetching leaderboard:', error);
@@ -57,8 +59,12 @@ export default function LeaderboardPage() {
     return '';
   };
 
+  const mobileRankers = IsMobile()
+
+  const visibleRankers = leaderboard.slice(0, mobileRankers ? 1 : 3);
+
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 px-20 mt-16">
+    <div className="container mx-auto px-4 py-6 sm:py-8 md:px-20 mt-16">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-2">
@@ -71,8 +77,8 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-8">
-        {leaderboard.slice(0, 3).map((user, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 sm:mb-8">
+        {visibleRankers.map((user, index) => (
           <Card key={user.user_id} className="text-center">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-center mb-3">
@@ -187,7 +193,7 @@ export default function LeaderboardPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Want to climb the leaderboard? Start tracking more plants!
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-row gap-3 justify-center">
             <a href="/dashboard" className="inline-flex">
               <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
                 Track a Plant

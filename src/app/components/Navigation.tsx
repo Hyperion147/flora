@@ -133,7 +133,7 @@ export default function Navigation() {
   return (
     <nav
       ref={navRef}
-      className="fixed left-1/2 -translate-x-1/2 z-[9999] transition-colors duration-300 dark:bg-slate-900/80 dark:text-white dark:border-white/10"
+      className="fixed left-1/2 -translate-x-1/2 z-9999 transition-colors duration-300 dark:bg-slate-900/80 dark:text-white dark:border-white/10"
     >
       <div
         ref={containerRef}
@@ -149,7 +149,7 @@ export default function Navigation() {
               🌱 Flora
             </h1>
             <p className="text-xs text-green-900 font-semibold dark:text-green-400 opacity-70">
-              v1.2
+              v1.3
             </p>
           </button>
         </div>

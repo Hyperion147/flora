@@ -31,26 +31,26 @@ export default function Home() {
     };
 
     return (
-        <main className="flex flex-col min-h-screen bg-transparent overflow-x-hidden px-26 pt-16">
+        <main className="flex flex-col min-h-screen bg-transparent overflow-x-hidden px-2 md:px-26 pt-16">
             {/* Hero Section */}
             <section className="relative w-full pt-5 flex flex-col items-center justify-center">
                 <div className="container relative z-10 mx-auto">
-                    <div className="grid gap-12 lg:grid-cols-2 items-center">
+                    <div className="grid gap-6 md:gap-12 lg:grid-cols-2 items-center px-4">
                         <motion.div 
                             initial="hidden"
                             animate="visible"
                             variants={containerVariants}
                             className="flex flex-col justify-center space-y-6"
                         >
-                            <motion.div variants={itemVariants} className="space-y-4">
+                            <motion.div variants={itemVariants} className="space-y-2 md:space-y-4">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium w-fit">
                                     <Sprout className="h-4 w-4" />
                                     <span>Welcome to Flora</span>
                                 </div>
-                                <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl xl:text-7xl/none bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 via-emerald-600 to-green-500 pb-2">
+                                <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl xl:text-7xl/none bg-clip-text text-transparent bg-linear-to-r from-emerald-700 via-emerald-600 to-green-500 pb-2">
                                     Your Digital <br /> Plant Directory
                                 </h1>
-                                <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-lg/relaxed xl:text-xl/relaxed">
+                                <p className="max-w-150 text-muted-foreground md:text-xl/relaxed lg:text-lg/relaxed xl:text-xl/relaxed">
                                     Discover, identify, and map the world&apos;s flora.
                                 </p>
                             </motion.div>
@@ -73,7 +73,7 @@ export default function Home() {
                             initial={{ opacity: 0, x: 50, scale: 0.9 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
-                            className="relative mx-auto w-full max-w-[500px] aspect-square lg:max-w-none"
+                            className="relative mx-auto w-full max-w-125 aspect-square lg:max-w-none"
                         >
                             <div className="absolute -inset-4 bg-emerald-500/10 rounded-[3rem] blur-3xl" />
                             <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-zinc-900 group">
@@ -84,7 +84,7 @@ export default function Home() {
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     priority
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <div className="absolute inset-0 bg-linear-to-t from-emerald-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             </div>
                         </motion.div>
                     </div>
@@ -96,7 +96,7 @@ export default function Home() {
             </section>
 
             {/* Quick Access Grid */}
-            <section className="w-full py-20 bg-emerald-50/50 dark:bg-zinc-900/50">
+            <section className="w-full py-8 md:py-20 bg-emerald-50/50 dark:bg-zinc-900/50">
                 <div className="container px-4 md:px-6 mx-auto">
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         <QuickLinkCard 

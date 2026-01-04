@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 to-green-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading...</p>
@@ -44,7 +44,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+    <div className="h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 to-green-100 px-4 md:px-0">
       <Suspense fallback={null}>
         <ErrorHandler />
       </Suspense>

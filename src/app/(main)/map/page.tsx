@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
-  loading: () => <Skeleton className="w-full h-[400px] sm:h-[500px]" />,
+  loading: () => <Skeleton className="w-full h-100 sm:h-125" />,
   ssr: false,
 });
 const PlantCity = dynamic(() => import("@/app/components/PlantMap").then(mod => mod.PlantCity), {
@@ -54,7 +54,7 @@ export default function MapPage() {
   const displayedPlants = plants;
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 px-20 mt-16">
+    <div className="container mx-auto py-6 sm:py-8 px-4 md:px-20 mt-16">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
