@@ -12,82 +12,77 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { LogOut, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Grid2X2,
+  Home,
+  Info,
+  Leaf,
+  LogOut,
+  Map,
+  PlusCircle,
+  Search,
+  Sun,
+  Trophy,
+  User,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FaMapLocationDot } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa";
-import { IoHome } from "react-icons/io5";
-import { MdDashboard, MdLeaderboard } from "react-icons/md";
 
-// Define proper type for user metadata
 interface UserMetadata {
   name?: string;
+  full_name?: string;
   avatar_url?: string;
+  picture?: string;
   [key: string]: unknown;
 }
+
+const navLinks = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/map", label: "Map", icon: Map },
+  { href: "/dashboard", label: "Dashboard", icon: Grid2X2 },
+  { href: "/dashboard", label: "Add Plant", icon: PlusCircle, action: true },
+  { href: "/search", label: "Search", icon: Search },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "#features", label: "About", icon: Info },
+];
 
 export default function Navigation() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [greenAccent, setGreenAccent] = useState(false);
 
-  const navRef = useRef<HTMLElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const saved = window.localStorage.getItem("flora-accent-mode");
+    const enabled = saved === "green";
+    setGreenAccent(enabled);
+    document.documentElement.classList.toggle("flora-green-accent", enabled);
+  }, []);
 
-  useGSAP(
-    () => {
-      if (pathname === "/login") return;
-
-      gsap.registerPlugin(ScrollTrigger);
-
-      // Reset any existing animations/styles
-      gsap.set(navRef.current, {
-        width: "100%",
-        maxWidth: "100%",
-        top: 0,
-        backgroundColor: "transparent",
-        borderRadius: 0,
-        padding: "0px",
-        border: "1px solid rgba(214, 192, 192, 0.3)",
-        boxShadow: "none",
-        backdropFilter: "blur(0px)",
-      });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "50px top",
-          scrub: 1,
-        },
-      });
-
-      tl.to(navRef.current, {
-        width: "90%",
-        maxWidth: "800px",
-        top: "16px",
-        borderRadius: "12px",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
-        padding: "2px 8px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(255, 255, 255, 0.3)",
-        ease: "power2.out",
-      });
-    },
-    { scope: navRef, dependencies: [pathname] }
-  );
+  useEffect(() => {
+    document.documentElement.classList.toggle("flora-green-accent", greenAccent);
+    window.localStorage.setItem("flora-accent-mode", greenAccent ? "green" : "light");
+  }, [greenAccent]);
 
   if (pathname === "/login") return null;
 
   const userMetadata = user?.user_metadata as UserMetadata | undefined;
-  const userName = userMetadata?.name || user?.email || "Guest";
+  const userName =
+    userMetadata?.name ||
+    userMetadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "Guest";
+  const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture;
+
+  const isActive = (href: string, isAction?: boolean) => {
+    if (isAction || href.startsWith("#")) return false;
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -95,10 +90,8 @@ export default function Navigation() {
     toast(
       (t) => (
         <div className="space-y-3 p-1">
-          <p className="text-sm font-medium">
-            Are you sure you want to log out?
-          </p>
-          <div className="flex gap-2 justify-center">
+          <p className="text-sm font-medium">Are you sure you want to log out?</p>
+          <div className="flex justify-center gap-2">
             <Button
               variant="destructive"
               size="sm"
@@ -116,11 +109,7 @@ export default function Navigation() {
             >
               Log out
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toast.dismiss(t.id)}
-            >
+            <Button variant="outline" size="sm" onClick={() => toast.dismiss(t.id)}>
               Cancel
             </Button>
           </div>
@@ -131,166 +120,130 @@ export default function Navigation() {
   };
 
   return (
-    <nav
-      ref={navRef}
-      className="fixed left-1/2 -translate-x-1/2 z-9999 transition-colors duration-300 dark:bg-slate-900/80 dark:text-white dark:border-white/10"
-    >
-      <div
-        ref={containerRef}
-        className="mx-auto flex w-full items-center justify-between p-4"
-      >
-        <div className="flex items-center space-x-4">
+    <header className="flora-navbar fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90 shadow-sm shadow-foreground/5 backdrop-blur-xl">
+      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 px-[clamp(1rem,4vw,4rem)] py-3 lg:grid-cols-[auto_1fr_auto]">
+        <Link href="/" className="group flex min-w-0 items-center gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+            <Image
+              src="/logo-flora.png"
+              alt="Flora logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain"
+              priority
+            />
+          </span>
+          <span className="min-w-0">
+            <span className="block font-serif text-2xl font-black leading-none text-primary">
+              Flora
+            </span>
+            <span className="hidden text-xs font-medium text-muted-foreground sm:block">
+              Free plant discovery map
+            </span>
+          </span>
+        </Link>
+
+        <nav className="no-scrollbar order-3 col-span-2 flex w-full items-center gap-1 overflow-x-auto border-t border-border pt-3 lg:order-none lg:col-span-1 lg:justify-center lg:border-t-0 lg:pt-0">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const active = isActive(link.href, link.action);
+
+            return (
+              <Link
+                key={`${link.label}-${link.href}`}
+                href={link.href}
+                className={cn(
+                  "group relative flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-all",
+                  active
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "text-foreground/72 hover:bg-secondary hover:text-secondary-foreground",
+                  link.action &&
+                    "border border-border bg-card text-primary hover:bg-primary hover:text-primary-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => router.push("/")}
-            className="text-left flex gap-1 group"
+            aria-label="Toggle green accent mode"
+            aria-pressed={greenAccent}
+            onClick={() => setGreenAccent((value) => !value)}
+            className={cn(
+              "relative flex h-11 w-[86px] items-center rounded-full border border-border bg-card px-1.5 text-xs font-black text-muted-foreground transition-colors",
+              greenAccent && "bg-[var(--flora-deep)] text-white"
+            )}
           >
-            <h1 className="text-xl font-bold text-green-600 cursor-pointer group-hover:scale-105 transition-transform">
-              🌱 Flora
-            </h1>
-            <p className="text-xs text-green-900 font-semibold dark:text-green-400 opacity-70">
-              v1.3
-            </p>
+            <span
+              className={cn(
+                "absolute h-8 w-8 rounded-full bg-secondary shadow-sm transition-transform",
+                greenAccent ? "translate-x-[42px] bg-primary" : "translate-x-0"
+              )}
+            />
+            <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-white/55")} />
+            <Leaf className={cn("relative z-10 h-4 w-4 flex-1", greenAccent ? "text-white" : "text-muted-foreground/55")} />
           </button>
-        </div>
 
-        <div className="hidden md:flex items-center gap-1">
-          <Link href="/dashboard">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-            >
-              Dashboard
-            </Button>
-          </Link>
-          <Link href="/map">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-            >
-              Map
-            </Button>
-          </Link>
-          <Link href="/leaderboard">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-            >
-              Leaderboard
-            </Button>
-          </Link>
-          <Link href="/search">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-            >
-              Search
-            </Button>
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {!user && (
-            <Link href="/login">
-              <Button
-                size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700 rounded-lg"
-              >
-                Sign In
-              </Button>
-            </Link>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative h-9 w-9 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={userMetadata?.avatar_url} alt={userName} />
-                  <AvatarFallback className="bg-emerald-100 text-emerald-700">
-                    {user ? (
-                      userMetadata?.name?.charAt(0) || user.email?.charAt(0)
-                    ) : (
-                      <User className="h-4 w-4" />
-                    )}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 mt-2" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-semibold leading-none">
-                    {userName}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    {user ? user.email : "Not signed in"}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => router.push("/")}
-                className="cursor-pointer"
-              >
-                <IoHome className="mr-2 h-4 w-4" />
-                Home
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push("/dashboard")}
-                className="cursor-pointer"
-              >
-                <MdDashboard className="mr-2 h-4 w-4" />
-                Dashboard
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push("/map")}
-                className="cursor-pointer"
-              >
-                <FaMapLocationDot className="mr-2 h-4 w-4" />
-                Map
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push("/search")}
-                className="cursor-pointer"
-              >
-                <FaSearch className="mr-2 h-4 w-4" />
-                Search
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push("/leaderboard")}
-                className="cursor-pointer"
-              >
-                <MdLeaderboard className="mr-2 h-4 w-4" />
-                Leaderboard
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {user ? (
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-11 rounded-full bg-primary px-3 font-bold text-primary-foreground hover:bg-primary/90">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={avatarUrl} alt={userName} />
+                    <AvatarFallback className="bg-emerald-100 text-xs text-emerald-800">
+                      {userName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden max-w-28 truncate sm:inline">{userName}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="mt-2 w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-semibold leading-none">{userName}</p>
+                    <p className="truncate text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                  <Grid2X2 className="mr-2 h-4 w-4" />
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/map")}>
+                  <Map className="mr-2 h-4 w-4" />
+                  Map
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                  className="cursor-pointer text-red-600 focus:text-red-600"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  Log out
                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  onClick={() => router.push("/login")}
-                  className="cursor-pointer"
-                >
-                  Sign In
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              asChild
+              className="h-11 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
+            >
+              <Link href="/login">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
-    </nav>
+      <div className="h-1 w-full bg-[linear-gradient(90deg,transparent_0%,var(--primary)_24%,var(--accent)_50%,var(--primary)_76%,transparent_100%)] opacity-55" />
+    </header>
   );
 }

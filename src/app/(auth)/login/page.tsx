@@ -5,9 +5,10 @@ import { useAuth } from '@/app/context/AuthContext';
 import { redirect, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Leaf, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 // Component that uses useSearchParams - needs to be wrapped in Suspense
 function ErrorHandler() {
@@ -52,7 +53,14 @@ export default function LoginPage() {
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center pb-6">
             <div className="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-full flex items-center justify-center">
-              <Leaf className="h-8 w-8 text-emerald-600" />
+              <Image
+                src="/logo-flora.png"
+                alt="Flora logo"
+                width={52}
+                height={52}
+                className="h-13 w-13 object-contain"
+                priority
+              />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
               Welcome to Flora
