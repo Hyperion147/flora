@@ -7,7 +7,6 @@ import { Leaf, Plus } from "lucide-react";
 
 type PlantTrackPanelProps = {
   userId?: string;
-  userName: string;
   showPlantForm: boolean;
   onShowPlantForm: () => void;
   onCancelPlantForm: () => void;
@@ -15,7 +14,6 @@ type PlantTrackPanelProps = {
 
 export function PlantTrackPanel({
   userId,
-  userName,
   showPlantForm,
   onShowPlantForm,
   onCancelPlantForm,
@@ -40,7 +38,6 @@ export function PlantTrackPanel({
       {showPlantForm ? (
         <PlantForm
           userId={userId}
-          userName={userName}
           onCancel={onCancelPlantForm}
           showCancelButton
         />
@@ -66,4 +63,3 @@ export function PlantTrackPanel({
     </section>
   );
 }
-

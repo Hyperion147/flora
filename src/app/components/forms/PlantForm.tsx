@@ -33,22 +33,17 @@ const formSchema = z.object({
     image: z
         .instanceof(File, { message: "Plant image is required." })
         .or(z.undefined()),
-    lat: z.number({
-        message: "Latitude is required.",
-    }),
-    lng: z.number({
-        message: "Longitude is required.",
-    }),
+    lat: z.number({ message: "Latitude is required." }).min(-90).max(90),
+    lng: z.number({ message: "Longitude is required." }).min(-180).max(180),
 });
 
 interface PlantFormProps {
     userId?: string;
-    userName: string;
     onCancel?: () => void;
     showCancelButton?: boolean;
 }
 
-export default function PlantForm({ userId, userName, onCancel, showCancelButton = false }: PlantFormProps) {
+export default function PlantForm({ userId, onCancel, showCancelButton = false }: PlantFormProps) {
     const queryClient = useQueryClient();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -188,8 +183,6 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
             formData.append("category", values.category || "");
             formData.append("lat", values.lat.toString());
             formData.append("lng", values.lng.toString());
-            formData.append("userId", userId);
-            formData.append("userName", userName);
 
             if (values.image) {
                 formData.append("image", values.image);

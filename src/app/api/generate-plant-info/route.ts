@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCropCategory } from '@/lib/cropCategories';
+import { logger } from '@/server/logger';
 
 // Function to clean up AI-generated descriptions
 function cleanDescription(text: string): string {
@@ -98,14 +99,15 @@ export async function POST(request: NextRequest) {
           
           // Clean up the description
           description = cleanDescription(rawDescription);
-          console.log('Successfully generated AI description for:', plantName);
+          logger.debug('Successfully generated AI description', { plantName });
         } else {
           const errorText = await response.text();
-          console.error('Perplexity API error:', errorText);
-          console.log('Falling back to predefined description');
+          logger.warn('Perplexity API error; falling back to predefined description', {
+            error: errorText,
+          });
         }
       } catch (apiError) {
-        console.error('Error calling Perplexity API:', apiError);
+        logger.error('Error calling Perplexity API', apiError);
       }
     }
 
@@ -122,7 +124,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error generating plant info:', error);
+    logger.error('Error generating plant info', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

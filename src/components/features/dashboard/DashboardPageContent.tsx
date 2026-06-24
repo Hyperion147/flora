@@ -67,7 +67,6 @@ export default function DashboardPageContent() {
         <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
           <PlantTrackPanel
             userId={user?.id}
-            userName={displayName}
             showPlantForm={showPlantForm}
             onShowPlantForm={() => setShowPlantForm(true)}
             onCancelPlantForm={() => setShowPlantForm(false)}
@@ -83,4 +82,3 @@ export default function DashboardPageContent() {
     </main>
   );
 }
-
