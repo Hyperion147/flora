@@ -26,7 +26,7 @@ export function FloraFooter() {
               <Link
                 key={index}
                 href="#"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-primary transition-colors hover:bg-secondary"
+                className="flora-glass-soft flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-secondary"
               >
                 <Icon className="h-4 w-4" />
               </Link>
@@ -43,7 +43,7 @@ export function FloraFooter() {
           <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
             Subscribe to get the latest updates, new features, and plant stories.
           </p>
-          <form className="mt-6 flex max-w-sm rounded-xl border border-border bg-card p-1 shadow-sm">
+          <form className="flora-glass-soft mt-6 flex max-w-sm rounded-xl p-1">
             <input
               type="email"
               placeholder="Enter your email"

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Leaf, MapPin } from "lucide-react";
+import { ArrowRight, Leaf, Map, MapPin, Sprout } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,34 +27,45 @@ export function HeroSection({ startHref }: { startHref: string }) {
           transition={{ duration: 0.65, ease: "easeOut" }}
           className="max-w-4xl"
         >
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground shadow-sm">
+          <div className="flora-glass-soft mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-secondary-foreground">
             <Leaf className="h-4 w-4" />
             Track. Map. Grow.
           </div>
 
-          <h1 className="font-serif text-[clamp(3.4rem,8vw,8.8rem)] font-black leading-[0.88] tracking-tight">
+          <h1 className="max-w-3xl font-serif text-[clamp(2.45rem,5.35vw,5.85rem)] font-black leading-[1.01] tracking-tight">
             Discover, Track &{" "}
             <span className="block text-primary">Celebrate Plants</span>
           </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
             Flora helps you catalog plants, explore the world&apos;s flora, and
             connect with a global community of plant lovers. It is free,
             useful, and built for real discoveries.
           </p>
 
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-8 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-center">
             <Button
               asChild
-              className="h-13 w-full rounded-xl bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 sm:w-auto"
+              className="group h-13 w-full justify-between rounded-full bg-primary py-2 pl-2 pr-4 text-sm font-black text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 sm:min-w-56 sm:w-auto"
             >
-              <Link href={startHref}>Start Your Journey</Link>
+              <Link href={startHref} className="gap-3">
+                <span className="grid size-9 place-items-center rounded-full bg-primary-foreground/16">
+                  <Sprout className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-left">Start Your Garden</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="h-13 w-full rounded-xl border-border bg-card/70 px-8 text-base font-bold text-primary backdrop-blur hover:bg-secondary sm:w-auto"
+              className="flora-glass-soft h-13 w-full rounded-full border-primary/20 bg-card/48 py-2 pl-2 pr-5 text-sm font-black text-primary hover:bg-secondary sm:min-w-48 sm:w-auto"
             >
-              <Link href="/map">Explore the Map</Link>
+              <Link href="/map" className="gap-3">
+                <span className="grid size-9 place-items-center rounded-full bg-secondary text-primary">
+                  <Map className="h-4 w-4" />
+                </span>
+                Explore Map
+              </Link>
             </Button>
           </div>
         </motion.div>
@@ -91,7 +102,7 @@ function HeroVisual({ startHref }: { startHref: string }) {
         initial={{ opacity: 0, y: 28, rotate: -2 }}
         animate={{ opacity: 1, y: 0, rotate: 0 }}
         transition={{ duration: 0.72, delay: 0.1, ease: "easeOut" }}
-        className="absolute left-1/2 top-4 z-30 w-[292px] -translate-x-1/2 rounded-[2.6rem] border-[9px] border-foreground bg-foreground p-2 shadow-2xl shadow-foreground/20 sm:w-[330px]"
+        className="flora-glass-dark absolute left-1/2 top-4 z-30 w-[292px] -translate-x-1/2 rounded-[2.6rem] border-[9px] border-foreground bg-foreground p-2 shadow-2xl shadow-foreground/20 sm:w-[330px]"
       >
         <PhoneMockup startHref={startHref} />
       </motion.div>
@@ -122,7 +133,7 @@ function HeroVisual({ startHref }: { startHref: string }) {
 
 function PhoneMockup({ startHref }: { startHref: string }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] bg-background text-foreground">
+    <div className="overflow-hidden rounded-[2rem] bg-background/86 text-foreground backdrop-blur-xl">
       <div className="mx-auto mt-2 h-7 w-28 rounded-full bg-foreground" />
       <div className="space-y-4 p-5">
         <div>
@@ -132,7 +143,7 @@ function PhoneMockup({ startHref }: { startHref: string }) {
           <h2 className="mt-1 text-lg font-black">Your garden is growing</h2>
         </div>
 
-        <div className="rounded-2xl bg-card p-4 shadow-sm">
+        <div className="flora-glass-soft rounded-2xl p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold">Today&apos;s Highlights</p>
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -152,7 +163,7 @@ function PhoneMockup({ startHref }: { startHref: string }) {
           ].map(([name, place, time], index) => (
             <div
               key={name}
-              className="mb-3 flex items-center gap-3 rounded-xl bg-card p-2 shadow-sm"
+              className="flora-glass-soft mb-3 flex items-center gap-3 rounded-xl p-2"
             >
               <div className="relative h-10 w-10 overflow-hidden rounded-full">
                 <Image
@@ -176,7 +187,10 @@ function PhoneMockup({ startHref }: { startHref: string }) {
           asChild
           className="h-11 w-full rounded-xl bg-primary text-sm font-bold text-primary-foreground hover:bg-primary/90"
         >
-          <Link href={startHref}>Add New Plant</Link>
+          <Link href={startHref} className="gap-2">
+            <Sprout className="h-4 w-4" />
+            Add New Plant
+          </Link>
         </Button>
       </div>
     </div>
@@ -185,7 +199,7 @@ function PhoneMockup({ startHref }: { startHref: string }) {
 
 function MiniStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl bg-secondary p-3">
+    <div className="flora-glass-soft rounded-xl p-3">
       <p className="text-lg font-black text-primary">{value}</p>
       <p className="text-[10px] font-semibold text-muted-foreground">
         {label}

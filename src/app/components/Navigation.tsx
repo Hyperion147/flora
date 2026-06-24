@@ -20,7 +20,6 @@ import {
   Leaf,
   LogOut,
   Map,
-  PlusCircle,
   Search,
   Sun,
   Trophy,
@@ -44,7 +43,6 @@ const navLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map", label: "Map", icon: Map },
   { href: "/dashboard", label: "Dashboard", icon: Grid2X2 },
-  { href: "/dashboard", label: "Add Plant", icon: PlusCircle, action: true },
   { href: "/search", label: "Search", icon: Search },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "#features", label: "About", icon: Info },
@@ -120,10 +118,10 @@ export default function Navigation() {
   };
 
   return (
-    <header className="flora-navbar fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90 shadow-sm shadow-foreground/5 backdrop-blur-xl">
+    <header className="flora-navbar flora-glass fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90">
       <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 px-[clamp(1rem,4vw,4rem)] py-3 lg:grid-cols-[auto_1fr_auto]">
         <Link href="/" className="group flex min-w-0 items-center gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+          <span className="flora-glass-soft flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-105">
             <Image
               src="/logo-flora.png"
               alt="Flora logo"
@@ -146,7 +144,7 @@ export default function Navigation() {
         <nav className="no-scrollbar order-3 col-span-2 flex w-full items-center gap-1 overflow-x-auto border-t border-border pt-3 lg:order-none lg:col-span-1 lg:justify-center lg:border-t-0 lg:pt-0">
           {navLinks.map((link) => {
             const Icon = link.icon;
-            const active = isActive(link.href, link.action);
+            const active = isActive(link.href);
 
             return (
               <Link
@@ -156,9 +154,7 @@ export default function Navigation() {
                   "group relative flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-all",
                   active
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-foreground/72 hover:bg-secondary hover:text-secondary-foreground",
-                  link.action &&
-                    "border border-border bg-card text-primary hover:bg-primary hover:text-primary-foreground"
+                    : "text-foreground/72 hover:bg-card/45 hover:text-secondary-foreground hover:backdrop-blur-md",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -175,14 +171,14 @@ export default function Navigation() {
             aria-pressed={greenAccent}
             onClick={() => setGreenAccent((value) => !value)}
             className={cn(
-              "relative flex h-11 w-[86px] items-center rounded-full border border-border bg-card px-1.5 text-xs font-black text-muted-foreground transition-colors",
+              "flora-glass-soft relative flex h-11 w-[86px] items-center rounded-full px-1.5 text-xs font-black text-muted-foreground transition-colors",
               greenAccent && "bg-[var(--flora-deep)] text-white"
             )}
           >
             <span
               className={cn(
                 "absolute h-8 w-8 rounded-full bg-secondary shadow-sm transition-transform",
-                greenAccent ? "translate-x-[42px] bg-primary" : "translate-x-0"
+                greenAccent ? "translate-x-[40px] bg-primary" : "translate-x-0"
               )}
             />
             <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-white/55")} />
@@ -243,7 +239,6 @@ export default function Navigation() {
           )}
         </div>
       </div>
-      <div className="h-1 w-full bg-[linear-gradient(90deg,transparent_0%,var(--primary)_24%,var(--accent)_50%,var(--primary)_76%,transparent_100%)] opacity-55" />
     </header>
   );
 }

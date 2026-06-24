@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Fraunces, JetBrains_Mono, Manrope } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
@@ -8,7 +8,23 @@ import { Providers } from '@/app/providers';
 import Navigation from '@/app/components/Navigation'
 import { Analytics } from "@vercel/analytics/next"
 
-const inter = Inter({ subsets: ['latin'] });
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Flora',
@@ -22,7 +38,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${manrope.variable} ${fraunces.variable} ${jetBrainsMono.variable} font-sans`}>
         <Providers>
           <AuthProvider>
             <Navigation />

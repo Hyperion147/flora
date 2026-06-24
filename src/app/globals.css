@@ -36,9 +36,9 @@
   --sidebar-border: oklch(0.88 0.02 77.29);
   --sidebar-ring: oklch(0.52 0.13 144.33);
 
-  --font-sans: Montserrat, sans-serif;
-  --font-serif: Merriweather, serif;
-  --font-mono: Source Code Pro, monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: Georgia, Cambria, "Times New Roman", serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
   --radius: 0.5rem;
 
@@ -207,6 +207,36 @@ html.flora-green-accent {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
+}
+
+.flora-glass {
+  background: color-mix(in oklch, var(--card) 68%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 72%, transparent),
+    0 18px 48px color-mix(in oklch, var(--foreground) 10%, transparent);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+}
+
+.flora-glass-soft {
+  background: color-mix(in oklch, var(--card) 48%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 58%, transparent),
+    0 12px 30px color-mix(in oklch, var(--foreground) 7%, transparent);
+  backdrop-filter: blur(16px) saturate(1.12);
+  -webkit-backdrop-filter: blur(16px) saturate(1.12);
+}
+
+.flora-glass-dark {
+  background: color-mix(in oklch, var(--flora-deep) 74%, transparent);
+  border: 1px solid color-mix(in oklch, white 22%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 18%, transparent),
+    0 22px 60px color-mix(in oklch, black 26%, transparent);
+  backdrop-filter: blur(20px) saturate(1.18);
+  -webkit-backdrop-filter: blur(20px) saturate(1.18);
 }
 
 .flora-navbar {

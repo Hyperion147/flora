@@ -28,9 +28,9 @@ export function FeaturesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
               transition={{ delay: index * 0.05 }}
-              className="flex min-h-[430px] flex-col rounded-3xl border border-border bg-card p-5 shadow-sm transition-transform hover:-translate-y-1"
+              className="flora-glass flex min-h-[430px] flex-col rounded-3xl p-5 transition-transform hover:-translate-y-1"
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-primary">
+              <div className="flora-glass-soft mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-primary">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-black text-card-foreground">
@@ -51,13 +51,10 @@ export function FeaturesSection() {
 function FeaturePreview({ kind }: { kind: FeaturePreviewKind }) {
   if (kind === "dashboard") {
     return (
-      <div className="mt-auto rounded-2xl border border-border bg-background p-3">
+      <div className="flora-glass-soft mt-auto rounded-2xl p-3">
         <div className="grid grid-cols-3 gap-2">
           {["24", "8", "156"].map((value) => (
-            <div
-              key={value}
-              className="rounded-xl bg-secondary p-2 text-center text-xs font-black text-primary"
-            >
+            <div key={value} className="flora-glass-soft rounded-xl p-2 text-center text-xs font-black text-primary">
               {value}
             </div>
           ))}
@@ -75,9 +72,9 @@ function FeaturePreview({ kind }: { kind: FeaturePreviewKind }) {
 
   if (kind === "form") {
     return (
-      <div className="mt-auto rounded-2xl border border-border bg-background p-3">
-        <div className="mb-2 h-8 rounded-lg border border-input bg-card" />
-        <div className="mb-2 h-8 rounded-lg border border-input bg-card" />
+      <div className="flora-glass-soft mt-auto rounded-2xl p-3">
+        <div className="flora-glass-soft mb-2 h-8 rounded-lg" />
+        <div className="flora-glass-soft mb-2 h-8 rounded-lg" />
         <div className="relative h-24 overflow-hidden rounded-xl">
           <Image src="/hero-plants.png" alt="" fill className="object-cover" />
         </div>
@@ -87,7 +84,7 @@ function FeaturePreview({ kind }: { kind: FeaturePreviewKind }) {
 
   if (kind === "map") {
     return (
-      <div className="mt-auto overflow-hidden rounded-2xl border border-border bg-secondary p-3">
+      <div className="flora-glass-soft mt-auto overflow-hidden rounded-2xl p-3">
         <WorldMapPattern compact />
       </div>
     );
@@ -95,8 +92,8 @@ function FeaturePreview({ kind }: { kind: FeaturePreviewKind }) {
 
   if (kind === "search") {
     return (
-      <div className="mt-auto rounded-2xl border border-border bg-background p-3">
-        <div className="mb-3 h-8 rounded-lg border border-input bg-card" />
+      <div className="flora-glass-soft mt-auto rounded-2xl p-3">
+        <div className="flora-glass-soft mb-3 h-8 rounded-lg" />
         {["Monstera", "John Doe", "PID: FLR2345", "Snake Plant"].map((item) => (
           <div
             key={item}
@@ -111,7 +108,7 @@ function FeaturePreview({ kind }: { kind: FeaturePreviewKind }) {
   }
 
   return (
-    <div className="mt-auto rounded-2xl border border-border bg-background p-3">
+    <div className="flora-glass-soft mt-auto rounded-2xl p-3">
       {["PlantMaster", "GreenThumb", "NatureLover", "LeafExplorer"].map(
         (item, rank) => (
           <div key={item} className="mb-3 flex items-center justify-between text-xs">
