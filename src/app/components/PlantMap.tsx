@@ -87,9 +87,7 @@ export function PlantCity({ lat, lng }: { lat: number; lng: number }) {
     getCityFromCoords(lat, lng).then(setCity);
   }, [lat, lng]);
 
-  return (
-    <span className="text-xs text-emerald-600 font-medium">📍 {city}</span>
-  );
+  return <span className="text-xs font-semibold text-primary">{city}</span>;
 }
 
 export default function PlantMap({
@@ -146,7 +144,7 @@ export default function PlantMap({
                   {new Date(plant.created_at).toLocaleTimeString()}
                 </p>
                 <PlantCity lat={plant.lat} lng={plant.lng} />
-                <p className="text-xs text-blue-600 font-semibold">
+                <p className="font-mono text-xs font-semibold text-accent-foreground">
                   PID: {plant.pid}
                 </p>
               </div>

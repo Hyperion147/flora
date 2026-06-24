@@ -243,7 +243,7 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
     };
 
     return (
-        <Card className="w-full mx-auto">
+        <Card className="flora-glass-soft mx-auto w-full">
             <CardHeader>
                 <CardTitle className="text-xl sm:text-2xl">
                     Track a New Plant (Global)
@@ -355,7 +355,7 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                                             <FormMessage />
                                             <p className="text-xs text-muted-foreground">
                                                 Upload a photo of your plant
-                                                <span className="text-xs text-red-500 pl-1">
+                                                <span className="pl-1 text-xs text-destructive">
                                                     (max. 10MB)
                                                 </span>
                                             </p>
@@ -424,21 +424,21 @@ export default function PlantForm({ userId, userName, onCancel, showCancelButton
                                 type="button"
                                 variant="secondary"
                                 onClick={getCurrentLocation}
-                                className="w-full relative overflow-hidden group text-black border border-emerald-100/50 text-[10px] font-bold uppercase tracking-wider h-11 px-4 hover:bg-emerald-100 transition-all"
+                                className="group relative h-11 w-full overflow-hidden border border-primary/15 bg-secondary px-4 text-[10px] font-black uppercase tracking-wider text-secondary-foreground transition-all hover:bg-accent"
                                 disabled={isLocating}
                             >
                                 {isLocating ? (
                                     <span className="flex items-center gap-2">
-                                        <span className="animate-spin text-emerald-600">↻</span>
+                                        <span className="animate-spin text-primary">↻</span>
                                         Locating...
                                     </span>
                                 ) : address ? (
-                                    <span className="flex items-center gap-2 text-emerald-700 font-bold">
+                                    <span className="flex items-center gap-2 font-black text-primary">
                                         <MapPinCheck className="w-4 h-4" />
                                         {address}
                                     </span>
                                 ) : (
-                                    <span className="flex items-center gap-2 group-hover:text-emerald-600 transition-colors">
+                                    <span className="flex items-center gap-2 transition-colors group-hover:text-primary">
                                         <Camera className="w-4 h-4" />
                                         Get My Location
                                     </span>

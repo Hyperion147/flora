@@ -30,7 +30,7 @@ export function StorySection({ startHref }: { startHref: string }) {
                     Plant enthusiasts and local explorers
                   </p>
                 </div>
-                <div className="flex text-yellow-500">
+                <div className="flex text-primary">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Star key={index} className="h-4 w-4 fill-current" />
                   ))}
@@ -40,7 +40,7 @@ export function StorySection({ startHref }: { startHref: string }) {
           </div>
         </div>
 
-        <div className="flora-glass-dark relative min-h-[340px] overflow-hidden rounded-[2rem] bg-[var(--flora-deep)] p-8 text-white">
+        <div className="flora-glass-dark relative min-h-[340px] overflow-hidden rounded-[2rem] bg-[var(--flora-deep)] p-8 text-primary-foreground">
           <Image
             src="/hero-plants.png"
             alt=""
@@ -52,7 +52,7 @@ export function StorySection({ startHref }: { startHref: string }) {
               <h2 className="max-w-xl font-serif text-4xl font-black sm:text-5xl">
                 Ready to Start Your Botanical Journey?
               </h2>
-              <p className="mt-4 max-w-lg leading-7 text-white/82">
+              <p className="mt-4 max-w-lg leading-7 text-primary-foreground/82">
                 Join plant lovers making Flora more helpful, one plant at a time.
               </p>
             </div>
@@ -66,7 +66,7 @@ export function StorySection({ startHref }: { startHref: string }) {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 w-full rounded-xl border-white/40 bg-white/5 text-white hover:bg-white/10"
+                className="h-12 w-full rounded-xl border-primary-foreground/40 bg-primary-foreground/5 text-primary-foreground hover:bg-primary-foreground/10"
               >
                 <Link href="/map">Explore the Map</Link>
               </Button>

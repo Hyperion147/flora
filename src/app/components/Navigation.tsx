@@ -172,7 +172,7 @@ export default function Navigation() {
             onClick={() => setGreenAccent((value) => !value)}
             className={cn(
               "flora-glass-soft relative flex h-11 w-[86px] items-center rounded-full px-1.5 text-xs font-black text-muted-foreground transition-colors",
-              greenAccent && "bg-[var(--flora-deep)] text-white"
+              greenAccent && "bg-primary text-primary-foreground"
             )}
           >
             <span
@@ -181,8 +181,8 @@ export default function Navigation() {
                 greenAccent ? "translate-x-[40px] bg-primary" : "translate-x-0"
               )}
             />
-            <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-white/55")} />
-            <Leaf className={cn("relative z-10 h-4 w-4 flex-1", greenAccent ? "text-white" : "text-muted-foreground/55")} />
+            <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-primary-foreground/55")} />
+            <Leaf className={cn("relative z-10 h-4 w-4 flex-1", greenAccent ? "text-primary-foreground" : "text-muted-foreground/55")} />
           </button>
 
           {user ? (
@@ -191,7 +191,7 @@ export default function Navigation() {
                 <Button className="h-11 rounded-full bg-primary px-3 font-bold text-primary-foreground hover:bg-primary/90">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={avatarUrl} alt={userName} />
-                    <AvatarFallback className="bg-emerald-100 text-xs text-emerald-800">
+                    <AvatarFallback className="bg-secondary text-xs text-primary">
                       {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -219,7 +219,7 @@ export default function Navigation() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="cursor-pointer text-red-600 focus:text-red-600"
+                  className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out

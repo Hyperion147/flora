@@ -94,11 +94,11 @@ export default function PlantSearch() {
     const hasSearched = debouncedSearchTerm.trim().length > 0;
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
+        <div className="mx-auto w-full max-w-3xl">
             <div className="relative mb-6">
                 <Input
                     placeholder="Search by name, user, or PID"
-                    className="pl-4 pr-12 h-12 text-base"
+                    className="flora-glass-soft h-13 rounded-full border-primary/15 bg-card/55 pl-5 pr-12 text-base"
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
@@ -111,7 +111,7 @@ export default function PlantSearch() {
             {showLoading && (
                 <div className="space-y-4">
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <Card key={i}>
+                        <Card key={i} className="flora-glass-soft">
                             <CardContent className="p-4">
                                 <div className="flex items-start space-x-4">
                                     <Skeleton className="w-16 h-16 rounded-md flex-shrink-0" />
@@ -146,7 +146,7 @@ export default function PlantSearch() {
                     {searchResults.map((plant) => (
                         <Card
                             key={plant.id}
-                            className="hover:shadow-md transition-shadow  mb-5 z-20"
+                            className="flora-glass-soft z-20 mb-5 transition-shadow hover:shadow-md"
                         >
                             <CardContent className="p-4">
                                 <div className="flex items-start space-x-4">
@@ -167,11 +167,11 @@ export default function PlantSearch() {
                                         />
                                     ) : null}
                                     <div
-                                        className={`w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 rounded-md flex items-center justify-center flex-shrink-0 ${
+                                        className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-secondary text-primary sm:h-20 sm:w-20 ${
                                             plant.image_url ? "hidden" : ""
                                         }`}
                                     >
-                                        <MapPin className="h-8 w-8 text-emerald-600" />
+                                        <MapPin className="h-8 w-8" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between">
@@ -186,7 +186,7 @@ export default function PlantSearch() {
                                                 )}
                                             </div>
                                             <div className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                                                <span className="text-blue-600 font-semibold">
+                                                <span className="font-mono font-semibold text-accent-foreground">
                                                     PID: {plant.pid}
                                                 </span>
                                             </div>
@@ -230,7 +230,7 @@ export default function PlantSearch() {
 
             {/* No results */}
             {!showLoading && hasSearched && !hasResults && (
-                <Card>
+                <Card className="flora-glass-soft">
                     <CardContent className="p-8 text-center">
                         <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
                             <Search className="h-8 w-8 text-muted-foreground" />
