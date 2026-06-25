@@ -120,8 +120,8 @@ export default function Navigation() {
   return (
     <header className="flora-navbar flora-glass fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90">
       <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 px-[clamp(1rem,4vw,4rem)] py-3 lg:grid-cols-[auto_1fr_auto]">
-        <Link href="/" className="group flex min-w-0 items-center gap-3">
-          <span className="flora-glass-soft flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-105">
+        <Link href="/" className="flex min-w-0 items-center gap-3">
+          <span className="flora-glass-soft flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform">
             <Image
               src="/logo-flora.png"
               alt="Flora logo"
@@ -134,9 +134,6 @@ export default function Navigation() {
           <span className="min-w-0">
             <span className="block font-serif text-2xl font-black leading-none text-primary">
               Flora
-            </span>
-            <span className="hidden text-xs font-medium text-muted-foreground sm:block">
-              Free plant discovery map
             </span>
           </span>
         </Link>
@@ -151,7 +148,7 @@ export default function Navigation() {
                 key={`${link.label}-${link.href}`}
                 href={link.href}
                 className={cn(
-                  "group relative flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-all",
+                  "relative flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-all",
                   active
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : "text-foreground/72 hover:bg-card/45 hover:text-secondary-foreground hover:backdrop-blur-md",
@@ -171,14 +168,14 @@ export default function Navigation() {
             aria-pressed={greenAccent}
             onClick={() => setGreenAccent((value) => !value)}
             className={cn(
-              "flora-glass-soft relative flex h-11 w-[86px] items-center rounded-full px-1.5 text-xs font-black text-muted-foreground transition-colors",
+              "flora-glass-soft relative flex h-10 w-20 items-center rounded-full text-xs font-black text-muted-foreground transition-colors",
               greenAccent && "bg-primary text-primary-foreground"
             )}
           >
             <span
               className={cn(
                 "absolute h-8 w-8 rounded-full bg-secondary shadow-sm transition-transform",
-                greenAccent ? "translate-x-[40px] bg-primary" : "translate-x-0"
+                greenAccent ? "translate-x-[43px] bg-primary" : "translate-x-1"
               )}
             />
             <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-primary-foreground/55")} />
@@ -229,7 +226,7 @@ export default function Navigation() {
           ) : (
             <Button
               asChild
-              className="h-11 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
+              className="h-10 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
             >
               <Link href="/login">
                 <User className="h-4 w-4" />
