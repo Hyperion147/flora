@@ -48,6 +48,8 @@ const FALLBACK_DESCRIPTIONS: Record<string, string> = {
   'default': 'A plant with its own special needs and uses. Check what kind of soil, water, and sunlight it likes best.'
 };
 
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
+
 export async function POST(request: NextRequest) {
   try {
     const { plantName } = await request.json();
@@ -62,52 +64,73 @@ export async function POST(request: NextRequest) {
     // Get category from our predefined categories
     const category = getCropCategory(plantName);
 
-    const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY;
     let description = '';
 
-    // Try Perplexity AI if API key is available
-    if (perplexityApiKey && perplexityApiKey !== 'your_perplexity_api_key_here') {
+    // Try Gemini if an API key is available.
+    if (geminiApiKey && geminiApiKey !== 'your_gemini_api_key_here') {
       try {
         const prompt = `Write a simple 3-4 line description of "${plantName}" in easy English. Include what it looks like, where it grows best, and its main uses. No technical terms, citations, or formatting. Keep it very short and simple for beginners.`;
 
-        const response = await fetch('https://api.perplexity.ai/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${perplexityApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'sonar',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a helpful gardening assistant. Write very short, simple plant descriptions in easy English. No technical jargon, citations, or formatting. Maximum 3-4 sentences.'
+        for (const model of GEMINI_MODELS) {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': geminiApiKey,
               },
-              {
-                role: 'user',
-                content: prompt
-              }
-            ],
-            max_tokens: 300,
-            temperature: 0.7,
-          }),
-        });
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      {
+                        text: [
+                          "You are a helpful gardening assistant.",
+                          "Write very short, simple plant descriptions in easy English.",
+                          "No technical jargon, citations, markdown, or formatting.",
+                          "Maximum 3-4 sentences.",
+                          prompt,
+                        ].join(" "),
+                      },
+                    ],
+                  },
+                ],
+                generationConfig: {
+                  maxOutputTokens: 300,
+                  temperature: 0.7,
+                },
+              }),
+            },
+          );
 
-        if (response.ok) {
+          if (!response.ok) {
+            const errorText = await response.text();
+            logger.warn('Gemini API error for model; trying next fallback if available', {
+              model,
+              error: errorText,
+            });
+            continue;
+          }
+
           const data = await response.json();
-          const rawDescription = data.choices?.[0]?.message?.content || '';
-          
-          // Clean up the description
+          const rawDescription =
+            data.candidates?.[0]?.content?.parts
+              ?.map((part: { text?: string }) => part.text || "")
+              .join(" ") || '';
+
           description = cleanDescription(rawDescription);
-          logger.debug('Successfully generated AI description', { plantName });
-        } else {
-          const errorText = await response.text();
-          logger.warn('Perplexity API error; falling back to predefined description', {
-            error: errorText,
-          });
+          if (description) {
+            logger.debug('Successfully generated AI description', {
+              plantName,
+              model,
+            });
+            break;
+          }
         }
       } catch (apiError) {
-        logger.error('Error calling Perplexity API', apiError);
+        logger.error('Error calling Gemini API', apiError);
       }
     }
 
@@ -120,7 +143,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       category: category || 'Other',
       description: description.trim(),
-      source: perplexityApiKey && perplexityApiKey !== 'your_perplexity_api_key_here' ? 'ai' : 'fallback'
+      source: geminiApiKey && geminiApiKey !== 'your_gemini_api_key_here' ? 'ai' : 'fallback'
     });
 
   } catch (error) {

@@ -1,5 +1,4 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { getSupabaseAdminClient } from "@/app/supabase/admin";
 import type { CreatePlantInput } from "./validation";
 import type { LeaderboardRow, PlantRow } from "./mappers";
 import { HttpError } from "../errors";
@@ -41,8 +40,7 @@ export async function listPlants(
     throw new HttpError("Failed to fetch plants", 500, error.message);
   }
 
-  const rows = await withUserAvatars((data || []) as PlantRow[]);
-  return mapPlantRows(rows);
+  return mapPlantRows((data || []) as PlantRow[]);
 }
 
 export async function searchPlants(
@@ -89,8 +87,7 @@ export async function searchPlants(
     results.flatMap((result) => (result.data || []) as PlantRow[]),
   );
 
-  const rowsWithAvatars = await withUserAvatars(rows);
-  return sortPlantsByRelevance(mapPlantRows(rowsWithAvatars), query).slice(
+  return sortPlantsByRelevance(mapPlantRows(rows), query).slice(
     0,
     limit,
   );
@@ -154,44 +151,6 @@ export async function createPlant(
   }
 }
 
-async function withUserAvatars(rows: PlantRow[]) {
-  if (!rows.length) return rows;
-
-  const admin = getSupabaseAdminClient();
-  const uniqueUserIds = Array.from(new Set(rows.map((row) => row.user_id)));
-  const avatarEntries = await Promise.all(
-    uniqueUserIds.map(async (userId) => {
-      try {
-        const { data, error } = await admin.auth.admin.getUserById(userId);
-
-        if (error || !data.user) {
-          return [userId, null] as const;
-        }
-
-        return [
-          userId,
-          data.user.user_metadata?.avatar_url ||
-            data.user.user_metadata?.picture ||
-            null,
-        ] as const;
-      } catch (error) {
-        logger.warn("Failed to resolve plant user avatar", {
-          userId,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return [userId, null] as const;
-      }
-    }),
-  );
-
-  const avatarMap = new Map(avatarEntries);
-
-  return rows.map((row) => ({
-    ...row,
-    user_avatar_url: avatarMap.get(row.user_id) ?? null,
-  }));
-}
-
 export async function deletePlant(
   supabase: SupabaseClient,
   user: User,
@@ -224,18 +183,14 @@ export async function deletePlant(
   return { success: true };
 }
 
-export async function getLeaderboard(admin: SupabaseClient, limit = 50) {
+export async function getLeaderboard(supabase: SupabaseClient, limit = 50) {
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 100);
-  const { data, error } = await admin.rpc("plant_leaderboard", {
+  const { data, error } = await supabase.rpc("plant_leaderboard", {
     p_limit: safeLimit,
   });
 
   if (!error && data) {
-    const rowsWithAvatars = await withLeaderboardAvatars(
-      admin,
-      data as LeaderboardRow[],
-    );
-    return mapLeaderboardRows(rowsWithAvatars);
+    return mapLeaderboardRows(data as LeaderboardRow[]);
   }
 
   logger.warn("Leaderboard RPC unavailable; falling back to row aggregation", {
@@ -243,7 +198,7 @@ export async function getLeaderboard(admin: SupabaseClient, limit = 50) {
     message: error?.message,
   });
 
-  const { data: plants, error: fetchError } = await admin
+  const { data: plants, error: fetchError } = await supabase
     .from("plants")
     .select("user_id,user_name");
 
@@ -272,52 +227,7 @@ export async function getLeaderboard(admin: SupabaseClient, limit = 50) {
     }
   }
 
-  const rowsWithAvatars = await withLeaderboardAvatars(
-    admin,
-    Array.from(leaderboard.values()),
-  );
-
-  return mapLeaderboardRows(rowsWithAvatars)
+  return mapLeaderboardRows(Array.from(leaderboard.values()))
     .sort((a, b) => b.plant_count - a.plant_count)
     .slice(0, safeLimit);
-}
-
-async function withLeaderboardAvatars(
-  admin: SupabaseClient,
-  rows: LeaderboardRow[],
-) {
-  if (!rows.length) return rows;
-
-  const uniqueUserIds = Array.from(new Set(rows.map((row) => row.user_id)));
-  const avatarEntries = await Promise.all(
-    uniqueUserIds.map(async (userId) => {
-      try {
-        const { data, error } = await admin.auth.admin.getUserById(userId);
-
-        if (error || !data.user) {
-          return [userId, null] as const;
-        }
-
-        return [
-          userId,
-          data.user.user_metadata?.avatar_url ||
-            data.user.user_metadata?.picture ||
-            null,
-        ] as const;
-      } catch (error) {
-        logger.warn("Failed to resolve leaderboard user avatar", {
-          userId,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return [userId, null] as const;
-      }
-    }),
-  );
-
-  const avatarMap = new Map(avatarEntries);
-
-  return rows.map((row) => ({
-    ...row,
-    avatar_url: avatarMap.get(row.user_id) ?? null,
-  }));
 }

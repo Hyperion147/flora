@@ -6,9 +6,21 @@ export async function middleware(request: NextRequest) {
     // Check if environment variables are available
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const pathname = request.nextUrl.pathname
+    const isProtectedRoute = !pathname.startsWith('/login') &&
+      !pathname.startsWith('/auth') &&
+      !pathname.startsWith('/api') &&
+      !pathname.startsWith('/map') &&
+      !pathname.startsWith('/_next') &&
+      pathname !== '/'
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Missing Supabase environment variables in middleware')
+      if (isProtectedRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        return NextResponse.redirect(url)
+      }
       return NextResponse.next()
     }
 
@@ -58,13 +70,6 @@ export async function middleware(request: NextRequest) {
 
     // Only redirect if we're sure the user is not authenticated
     // and they're trying to access a protected route
-    const isProtectedRoute = !request.nextUrl.pathname.startsWith('/login') &&
-      !request.nextUrl.pathname.startsWith('/auth') &&
-      !request.nextUrl.pathname.startsWith('/api') &&
-      !request.nextUrl.pathname.startsWith('/map') &&
-      !request.nextUrl.pathname.startsWith('/_next') &&
-      request.nextUrl.pathname !== '/'
-
     if (!user && isProtectedRoute) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
@@ -74,7 +79,20 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   } catch (error) {
     console.error('Middleware error:', error)
-    // If middleware fails, just continue without auth checks
+    const pathname = request.nextUrl.pathname
+    const isProtectedRoute = !pathname.startsWith('/login') &&
+      !pathname.startsWith('/auth') &&
+      !pathname.startsWith('/api') &&
+      !pathname.startsWith('/map') &&
+      !pathname.startsWith('/_next') &&
+      pathname !== '/'
+
+    if (isProtectedRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
     return NextResponse.next()
   }
 }
