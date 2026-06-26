@@ -31,8 +31,9 @@ test("mapLeaderboardRow normalizes numeric counts", () => {
     user_id: "user-1",
     user_name: "GreenThumb",
     plant_count: "12",
+    avatar_url: "https://example.com/avatar.png",
   });
 
   assert.equal(mapped.plant_count, 12);
+  assert.equal(mapped.avatar_url, "https://example.com/avatar.png");
 });
-

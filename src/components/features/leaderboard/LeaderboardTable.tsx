@@ -63,7 +63,8 @@ export function LeaderboardTable({
                         <div className="flex items-center gap-3">
                           <Avatar className="size-8 sm:size-10">
                             <AvatarImage
-                              src={`https://ui-avatars.com/api/?name=${user.user_name}`}
+                              src={user.avatar_url || undefined}
+                              alt={user.user_name}
                             />
                             <AvatarFallback className="bg-secondary text-sm font-black text-primary">
                               {user.user_name.charAt(0)}
@@ -136,4 +137,3 @@ function EmptyLeaderboardRow() {
     </TableRow>
   );
 }
-

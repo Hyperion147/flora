@@ -8,10 +8,8 @@
    - Environments: .env
 
  ✓ Starting...
- ✓ Ready in 2.1s
- ○ Compiling / ...
- ✓ Compiled / in 14.2s (1979 modules)
- GET / 200 in 15219ms
- GET / 200 in 409ms
- GET / 200 in 206ms
- GET / 200 in 167ms
+ ✓ Ready in 2.2s
+ ○ Compiling /map ...
+ ✓ Compiled /map in 8.3s (1225 modules)
+ ✓ Compiled in 417ms (532 modules)
+[?25h

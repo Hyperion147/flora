@@ -1,4 +1,5 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/app/supabase/admin";
 import type { CreatePlantInput } from "./validation";
 import type { LeaderboardRow, PlantRow } from "./mappers";
 import { HttpError } from "../errors";
@@ -40,7 +41,8 @@ export async function listPlants(
     throw new HttpError("Failed to fetch plants", 500, error.message);
   }
 
-  return mapPlantRows((data || []) as PlantRow[]);
+  const rows = await withUserAvatars((data || []) as PlantRow[]);
+  return mapPlantRows(rows);
 }
 
 export async function searchPlants(
@@ -87,7 +89,11 @@ export async function searchPlants(
     results.flatMap((result) => (result.data || []) as PlantRow[]),
   );
 
-  return sortPlantsByRelevance(mapPlantRows(rows), query).slice(0, limit);
+  const rowsWithAvatars = await withUserAvatars(rows);
+  return sortPlantsByRelevance(mapPlantRows(rowsWithAvatars), query).slice(
+    0,
+    limit,
+  );
 }
 
 export async function createPlant(
@@ -120,7 +126,11 @@ export async function createPlant(
         .single();
 
       if (!error && data) {
-        return mapPlantRow(data as PlantRow);
+        return mapPlantRow({
+          ...(data as PlantRow),
+          user_avatar_url:
+            user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+        });
       }
 
       lastError = error;
@@ -142,6 +152,44 @@ export async function createPlant(
     await deleteUploadedPlantImage(admin, uploadedImage);
     throw error;
   }
+}
+
+async function withUserAvatars(rows: PlantRow[]) {
+  if (!rows.length) return rows;
+
+  const admin = getSupabaseAdminClient();
+  const uniqueUserIds = Array.from(new Set(rows.map((row) => row.user_id)));
+  const avatarEntries = await Promise.all(
+    uniqueUserIds.map(async (userId) => {
+      try {
+        const { data, error } = await admin.auth.admin.getUserById(userId);
+
+        if (error || !data.user) {
+          return [userId, null] as const;
+        }
+
+        return [
+          userId,
+          data.user.user_metadata?.avatar_url ||
+            data.user.user_metadata?.picture ||
+            null,
+        ] as const;
+      } catch (error) {
+        logger.warn("Failed to resolve plant user avatar", {
+          userId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return [userId, null] as const;
+      }
+    }),
+  );
+
+  const avatarMap = new Map(avatarEntries);
+
+  return rows.map((row) => ({
+    ...row,
+    user_avatar_url: avatarMap.get(row.user_id) ?? null,
+  }));
 }
 
 export async function deletePlant(
@@ -183,7 +231,11 @@ export async function getLeaderboard(admin: SupabaseClient, limit = 50) {
   });
 
   if (!error && data) {
-    return mapLeaderboardRows(data as LeaderboardRow[]);
+    const rowsWithAvatars = await withLeaderboardAvatars(
+      admin,
+      data as LeaderboardRow[],
+    );
+    return mapLeaderboardRows(rowsWithAvatars);
   }
 
   logger.warn("Leaderboard RPC unavailable; falling back to row aggregation", {
@@ -215,12 +267,57 @@ export async function getLeaderboard(admin: SupabaseClient, limit = 50) {
         user_id: plant.user_id,
         user_name: plant.user_name,
         plant_count: 1,
+        avatar_url: null,
       });
     }
   }
 
-  return mapLeaderboardRows(Array.from(leaderboard.values()))
+  const rowsWithAvatars = await withLeaderboardAvatars(
+    admin,
+    Array.from(leaderboard.values()),
+  );
+
+  return mapLeaderboardRows(rowsWithAvatars)
     .sort((a, b) => b.plant_count - a.plant_count)
     .slice(0, safeLimit);
 }
 
+async function withLeaderboardAvatars(
+  admin: SupabaseClient,
+  rows: LeaderboardRow[],
+) {
+  if (!rows.length) return rows;
+
+  const uniqueUserIds = Array.from(new Set(rows.map((row) => row.user_id)));
+  const avatarEntries = await Promise.all(
+    uniqueUserIds.map(async (userId) => {
+      try {
+        const { data, error } = await admin.auth.admin.getUserById(userId);
+
+        if (error || !data.user) {
+          return [userId, null] as const;
+        }
+
+        return [
+          userId,
+          data.user.user_metadata?.avatar_url ||
+            data.user.user_metadata?.picture ||
+            null,
+        ] as const;
+      } catch (error) {
+        logger.warn("Failed to resolve leaderboard user avatar", {
+          userId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return [userId, null] as const;
+      }
+    }),
+  );
+
+  const avatarMap = new Map(avatarEntries);
+
+  return rows.map((row) => ({
+    ...row,
+    avatar_url: avatarMap.get(row.user_id) ?? null,
+  }));
+}

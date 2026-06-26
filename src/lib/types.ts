@@ -18,6 +18,7 @@ export type Plant = {
   lng: number;
   user_id: string;
   user_name: string;
+  user_avatar_url?: string | null;
   created_at: string | Date;
   updated_at?: string | Date;
 };

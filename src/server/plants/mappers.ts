@@ -11,6 +11,7 @@ export type PlantRow = {
   lng: number | string;
   user_id: string;
   user_name: string;
+  user_avatar_url?: string | null;
   created_at: string | Date;
   updated_at?: string | Date | null;
 };
@@ -19,6 +20,7 @@ export type LeaderboardRow = {
   user_id: string;
   user_name: string;
   plant_count: number | string;
+  avatar_url?: string | null;
 };
 
 export function mapPlantRow(row: PlantRow): Plant {
@@ -33,6 +35,7 @@ export function mapPlantRow(row: PlantRow): Plant {
     lng: Number(row.lng),
     user_id: row.user_id,
     user_name: row.user_name,
+    user_avatar_url: row.user_avatar_url ?? null,
     created_at:
       row.created_at instanceof Date
         ? row.created_at.toISOString()
@@ -53,10 +56,10 @@ export function mapLeaderboardRow(row: LeaderboardRow) {
     user_id: row.user_id,
     user_name: row.user_name,
     plant_count: Number(row.plant_count),
+    avatar_url: row.avatar_url ?? null,
   };
 }
 
 export function mapLeaderboardRows(rows: LeaderboardRow[] = []) {
   return rows.map(mapLeaderboardRow);
 }
-

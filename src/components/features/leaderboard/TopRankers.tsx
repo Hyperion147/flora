@@ -21,7 +21,8 @@ export function TopRankers({ users }: { users: LeaderboardUser[] }) {
               </div>
               <Avatar className="mx-auto mb-3 size-12 sm:size-16">
                 <AvatarImage
-                  src={`https://ui-avatars.com/api/?name=${user.user_name}`}
+                  src={user.avatar_url || undefined}
+                  alt={user.user_name}
                 />
                 <AvatarFallback className="bg-secondary text-lg font-black text-primary">
                   {user.user_name.charAt(0)}
@@ -41,4 +42,3 @@ export function TopRankers({ users }: { users: LeaderboardUser[] }) {
     </section>
   );
 }
-
