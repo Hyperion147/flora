@@ -17,7 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Plant } from "@/lib/types";
-import { Filter, Globe2, Leaf, MapPin, Search, Users } from "lucide-react";
+import { Filter, Globe2, Leaf, MapPin, Search, Users, X } from "lucide-react";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
     ssr: false,
@@ -64,6 +64,7 @@ export default function MapPageContent() {
         useState<TimeframeFilter>("All Time");
     const [showOnlyGeotagged, setShowOnlyGeotagged] = useState(false);
     const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
     const deferredSearchQuery = useDeferredValue(searchQuery);
 
@@ -158,11 +159,15 @@ export default function MapPageContent() {
     const countryCount = countCountries(filteredPlants);
     const popularRegions = buildPopularRegions(filteredPlants);
     const topContributors = buildTopContributors(filteredPlants);
+    const activeFilterCount =
+        (selectedCategory !== "All Categories" ? 1 : 0) +
+        (selectedTimeframe !== "All Time" ? 1 : 0) +
+        (showOnlyGeotagged ? 1 : 0);
 
     return (
         <main className="min-h-screen bg-[radial-gradient(circle_at_14%_16%,color-mix(in_oklch,var(--accent)_26%,transparent),transparent_25%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_88%)] px-3 pb-24 pt-22 text-foreground sm:px-5 sm:pb-10 sm:pt-24 lg:px-6 xl:px-8">
             <div className="mx-auto w-full max-w-[1680px]">
-                <section className="flora-glass relative overflow-hidden rounded-2xl border border-border/70 bg-background/72 px-4 py-5 shadow-xl shadow-foreground/5 sm:px-6 sm:py-7 lg:px-8 lg:py-9 xl:px-10 xl:py-10">
+                <section className="flora-glass relative overflow-hidden rounded-2xl border border-border/70 bg-background/72 px-4 py-4 shadow-xl shadow-foreground/5 sm:px-6 sm:py-7 lg:px-8 lg:py-9 xl:px-10 xl:py-10">
                     <Image
                         src="/side-plants.png"
                         alt=""
@@ -171,17 +176,17 @@ export default function MapPageContent() {
                         className="pointer-events-none absolute -right-8 top-0 hidden w-56 opacity-22 blur-[2px] lg:block"
                     />
 
-                    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+                    <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-8">
                         <div>
                             <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">
                                 Global Discoveries
                             </p>
-                            <h1 className="mt-3 max-w-[12ch] font-serif text-[clamp(2rem,4vw,4rem)] font-black leading-[0.95] tracking-tight">
+                            <h1 className="mt-2 max-w-[11ch] font-serif text-[clamp(1.9rem,7vw,4rem)] font-black leading-[0.94] tracking-tight">
                                 Explore the World of Plants
                             </h1>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
                             <StatCard
                                 icon={Leaf}
                                 value={filteredPlants.length}
@@ -210,9 +215,9 @@ export default function MapPageContent() {
                     </div>
                 </section>
 
-                <section className="mt-4 space-y-4">
-                    <div className="flora-glass flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/72 p-3 shadow-lg shadow-foreground/5 lg:flex-row lg:flex-wrap lg:items-center">
-                        <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card/72 px-4 py-2">
+                <section className="mt-3 space-y-3 sm:mt-4 sm:space-y-4">
+                    <div className="flora-glass flex flex-col gap-2 rounded-2xl border border-border/70 bg-background/72 p-2.5 shadow-lg shadow-foreground/5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-3 lg:p-3">
+                        <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card/72 px-3.5 py-2">
                             <Search className="h-4 w-4 shrink-0 text-primary" />
                             <Input
                                 value={searchQuery}
@@ -224,49 +229,80 @@ export default function MapPageContent() {
                             />
                         </label>
 
-                        <FilterSelect
-                            icon={Leaf}
-                            value={selectedCategory}
-                            onValueChange={setSelectedCategory}
-                            placeholder="All Categories"
-                            options={categoryOptions}
-                        />
-                        <FilterSelect
-                            icon={Globe2}
-                            value={selectedTimeframe}
-                            onValueChange={(value) =>
-                                setSelectedTimeframe(value as TimeframeFilter)
-                            }
-                            placeholder="All Time"
-                            options={timeframeOptions}
-                        />
-                        <Button
-                            type="button"
-                            variant={showOnlyGeotagged ? "default" : "outline"}
-                            onClick={() =>
-                                setShowOnlyGeotagged((value) => !value)
-                            }
-                            className="h-10 rounded-xl px-4 text-sm font-semibold"
-                        >
-                            <MapPin className="h-4 w-4" />
-                            {showOnlyGeotagged
-                                ? "Geotagged Only"
-                                : "All Plants"}
-                        </Button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setSearchQuery("");
-                                setSelectedCategory("All Categories");
-                                setSelectedTimeframe("All Time");
-                                setShowOnlyGeotagged(false);
-                                setSelectedPlant(null);
-                            }}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-                        >
-                            <Filter className="h-4 w-4 text-primary" />
-                            Reset
-                        </button>
+                        <div className="flex items-center gap-2 lg:hidden">
+                            <button
+                                type="button"
+                                onClick={() => setIsMobileFiltersOpen(true)}
+                                className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                            >
+                                <Filter className="h-4 w-4 text-primary" />
+                                Filters
+                                {activeFilterCount > 0 && (
+                                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-black text-primary-foreground">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setSelectedCategory("All Categories");
+                                    setSelectedTimeframe("All Time");
+                                    setShowOnlyGeotagged(false);
+                                    setSelectedPlant(null);
+                                }}
+                                className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-card/72 px-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                            >
+                                Reset
+                            </button>
+                        </div>
+
+                        <div className="hidden items-center gap-3 lg:flex lg:flex-wrap">
+                            <FilterSelect
+                                icon={Leaf}
+                                value={selectedCategory}
+                                onValueChange={setSelectedCategory}
+                                placeholder="All Categories"
+                                options={categoryOptions}
+                            />
+                            <FilterSelect
+                                icon={Globe2}
+                                value={selectedTimeframe}
+                                onValueChange={(value) =>
+                                    setSelectedTimeframe(value as TimeframeFilter)
+                                }
+                                placeholder="All Time"
+                                options={timeframeOptions}
+                            />
+                            <Button
+                                type="button"
+                                variant={showOnlyGeotagged ? "default" : "outline"}
+                                onClick={() =>
+                                    setShowOnlyGeotagged((value) => !value)
+                                }
+                                className="h-10 rounded-xl px-4 text-sm font-semibold"
+                            >
+                                <MapPin className="h-4 w-4" />
+                                {showOnlyGeotagged
+                                    ? "Geotagged Only"
+                                    : "All Plants"}
+                            </Button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setSelectedCategory("All Categories");
+                                    setSelectedTimeframe("All Time");
+                                    setShowOnlyGeotagged(false);
+                                    setSelectedPlant(null);
+                                }}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                            >
+                                <Filter className="h-4 w-4 text-primary" />
+                                Reset
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flora-glass overflow-hidden rounded-2xl border border-border/70 bg-background/76 p-4 shadow-xl shadow-foreground/6">
@@ -446,6 +482,92 @@ export default function MapPageContent() {
                     </section>
                 </section>
             </div>
+
+            {isMobileFiltersOpen && (
+                <div className="fixed inset-0 z-[70] lg:hidden">
+                    <button
+                        type="button"
+                        aria-label="Close filters"
+                        onClick={() => setIsMobileFiltersOpen(false)}
+                        className="absolute inset-0 bg-foreground/28 backdrop-blur-sm"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 rounded-t-[1.5rem] border border-border/70 bg-background p-4 shadow-2xl shadow-foreground/20">
+                        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+                        <div className="mb-4 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-base font-black">Filters</h2>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    Narrow the map without crowding the page.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsMobileFiltersOpen(false)}
+                                className="grid size-9 place-items-center rounded-full border border-border bg-card/72 text-muted-foreground"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            <FilterSelect
+                                icon={Leaf}
+                                value={selectedCategory}
+                                onValueChange={setSelectedCategory}
+                                placeholder="All Categories"
+                                options={categoryOptions}
+                                fullWidth
+                            />
+                            <FilterSelect
+                                icon={Globe2}
+                                value={selectedTimeframe}
+                                onValueChange={(value) =>
+                                    setSelectedTimeframe(value as TimeframeFilter)
+                                }
+                                placeholder="All Time"
+                                options={timeframeOptions}
+                                fullWidth
+                            />
+                            <Button
+                                type="button"
+                                variant={showOnlyGeotagged ? "default" : "outline"}
+                                onClick={() =>
+                                    setShowOnlyGeotagged((value) => !value)
+                                }
+                                className="h-11 w-full rounded-xl justify-center text-sm font-semibold"
+                            >
+                                <MapPin className="h-4 w-4" />
+                                {showOnlyGeotagged
+                                    ? "Geotagged Only"
+                                    : "Show Geotagged Only"}
+                            </Button>
+                        </div>
+
+                        <div className="mt-4 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setSelectedCategory("All Categories");
+                                    setSelectedTimeframe("All Time");
+                                    setShowOnlyGeotagged(false);
+                                    setSelectedPlant(null);
+                                }}
+                                className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                            >
+                                Reset
+                            </button>
+                            <Button
+                                type="button"
+                                onClick={() => setIsMobileFiltersOpen(false)}
+                                className="h-11 flex-1 rounded-xl text-sm font-semibold"
+                            >
+                                Done
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
@@ -460,14 +582,14 @@ function StatCard({
     label: string;
 }) {
     return (
-        <div className="rounded-xl border border-border/70 bg-background/82 px-4 py-5 text-center shadow-sm sm:rounded-2xl">
-            <div className="mx-auto grid size-10 place-items-center rounded-full bg-secondary text-primary">
-                <Icon className="h-5 w-5" />
+        <div className="rounded-xl border border-border/70 bg-background/82 px-3 py-4 text-center shadow-sm sm:rounded-2xl sm:px-4 sm:py-5">
+            <div className="mx-auto grid size-9 place-items-center rounded-full bg-secondary text-primary sm:size-10">
+                <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <p className="mt-3 text-[clamp(1.45rem,2vw,2rem)] font-black">
+            <p className="mt-2 text-[clamp(1.3rem,2vw,2rem)] font-black sm:mt-3">
                 {value}
             </p>
-            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-[11px] text-muted-foreground sm:text-xs">{label}</p>
         </div>
     );
 }
@@ -478,16 +600,18 @@ function FilterSelect({
     onValueChange,
     placeholder,
     options,
+    fullWidth = false,
 }: {
     icon: typeof Leaf;
     value: string;
     onValueChange: (value: string) => void;
     placeholder: string;
     options: readonly string[];
+    fullWidth?: boolean;
 }) {
     return (
         <Select value={value} onValueChange={onValueChange}>
-            <SelectTrigger className="min-w-44 rounded-xl border-border bg-card/72 px-4 text-sm font-semibold shadow-none">
+            <SelectTrigger className={`${fullWidth ? "w-full" : "min-w-44"} rounded-xl border-border bg-card/72 px-4 text-sm font-semibold shadow-none`}>
                 <span className="flex items-center gap-3">
                     <Icon className="h-4 w-4 text-primary" />
                     <SelectValue placeholder={placeholder} />

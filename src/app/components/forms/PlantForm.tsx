@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -15,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     ImageIcon,
@@ -29,16 +30,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import CROP_CATEGORIES from "@/lib/cropCategories";
 import Image from "next/image";
 
-// All fields required, but no area bounds
 const formSchema = z.object({
     name: z
         .string()
         .min(2, { message: "Plant name must be at least 2 characters." }),
     description: z.string(),
     category: z.string().optional(),
-    image: z
-        .instanceof(File, { message: "Plant image is required." })
-        .or(z.undefined()),
+    image: z.custom<File>(
+        (value) => value instanceof File,
+        "Plant image is required.",
+    ),
     lat: z.number({ message: "Latitude is required." }).min(-90).max(90),
     lng: z.number({ message: "Longitude is required." }).min(-180).max(180),
 });
@@ -56,6 +57,18 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
     const [isGenerating, setIsGenerating] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
     const [address, setAddress] = useState<string | null>(null);
+    const [locationHint, setLocationHint] = useState(
+        "We'll use this to geotag your plant discovery",
+    );
+
+    const clearPreviewImage = () => {
+        setPreviewImage((currentPreview) => {
+            if (currentPreview) {
+                URL.revokeObjectURL(currentPreview);
+            }
+            return null;
+        });
+    };
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -63,22 +76,37 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
             name: "",
             description: "",
             category: "",
+            image: undefined,
             lat: undefined,
             lng: undefined,
         },
     });
+
+    useEffect(() => {
+        return () => {
+            if (previewImage) {
+                URL.revokeObjectURL(previewImage);
+            }
+        };
+    }, [previewImage]);
+
     const handleImageChange = (file: File) => {
         const MAX_SIZE_MB = 10;
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            toast.error(
-                "Image should not exceed 10MB."
-            );
-            form.setValue("image", undefined);
-            setPreviewImage(null);
+            toast.error("Image should not exceed 10MB.");
+            form.setValue("image", undefined as unknown as File, {
+                shouldValidate: true,
+            });
+            clearPreviewImage();
             return;
         }
         form.setValue("image", file, { shouldValidate: true });
-        setPreviewImage(URL.createObjectURL(file));
+        setPreviewImage((currentPreview) => {
+            if (currentPreview) {
+                URL.revokeObjectURL(currentPreview);
+            }
+            return URL.createObjectURL(file);
+        });
     };
 
     const generatePlantInfo = async () => {
@@ -103,16 +131,53 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
             }
 
             const data = await response.json();
-            
-            // Update form with generated data
-            form.setValue("category", data.category);
-            form.setValue("description", data.description);
-            
-            const sourceMessage = data.source === 'ai' ? 'AI-generated' : 'Template-based';
-            toast.success(`Plant information generated successfully! (${sourceMessage})`);
+
+            const currentCategory = form.getValues("category")?.trim();
+            const currentDescription = form.getValues("description")?.trim();
+            let filledCount = 0;
+            let preservedCount = 0;
+
+            if (!currentCategory && data.category) {
+                form.setValue("category", data.category, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+                filledCount += 1;
+            } else if (currentCategory) {
+                preservedCount += 1;
+            }
+
+            if (!currentDescription && data.description) {
+                form.setValue("description", data.description, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+                filledCount += 1;
+            } else if (currentDescription) {
+                preservedCount += 1;
+            }
+
+            const sourceMessage =
+                data.source === "ai" ? "AI-generated" : "Template-based";
+
+            if (filledCount > 0) {
+                toast.success(
+                    `Plant information generated successfully! (${sourceMessage})`,
+                    {
+                        description:
+                            preservedCount > 0
+                                ? "Existing edits were kept."
+                                : undefined,
+                    },
+                );
+            } else {
+                toast.message("Your existing category and description were kept.");
+            }
         } catch (error) {
             console.error("Error generating plant info:", error);
-            toast.error("Failed to generate plant information. Please try again or fill manually.");
+            toast.error(
+                "Failed to generate plant information. Please try again.",
+            );
         } finally {
             setIsGenerating(false);
         }
@@ -122,63 +187,51 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
      const getCurrentLocation = () => {
         if (navigator.geolocation) {
             setIsLocating(true);
+            setLocationHint("Trying to get your current location...");
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    form.setValue("lat", lat);
-                    form.setValue("lng", lng);
+                    form.setValue("lat", lat, { shouldValidate: true });
+                    form.setValue("lng", lng, { shouldValidate: true });
 
                     try {
                         const response = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                            `/api/reverse-geocode?lat=${lat}&lng=${lng}`,
                         );
-                        const data = await response.json();
-
-                        const addr = data.address;
-                        const town = addr.village || addr.town || addr.suburb || addr.neighbourhood || "";
-                        const city = addr.city || addr.district || addr.state_district || addr.county || "";
-
-                        if (town && city) {
-                            setAddress(`${town}, ${city}`);
-                        } else if (city) {
-                            setAddress(city);
-                        } else if (town) {
-                            setAddress(town);
-                        } else {
-                            setAddress(data.display_name.split(',')[0]);
+                        if (response.ok) {
+                            const data = await response.json();
+                            setAddress(data.addressLabel || null);
                         }
                     } catch (err) {
                         console.error("Reverse geocoding error:", err);
                     }
 
                     toast.success("Location captured!");
+                    setLocationHint("Your plant will be geotagged with this location.");
                     setIsLocating(false);
                 },
                 (error) => {
                     console.error("Error getting location:", error);
-                    toast.error(
-                        "Could not get your location. Please enter coordinates manually."
+                    setAddress(null);
+                    form.resetField("lat");
+                    form.resetField("lng");
+                    setLocationHint(
+                        "Location unavailable. Check permissions and try again.",
                     );
+                    toast.error("Could not get your location. Please try again.");
                     setIsLocating(false);
                 }
             );
         } else {
             toast.error("Geolocation is not supported by this browser.");
+            setLocationHint("Geolocation is not supported on this device.");
         }
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         if (!userId) {
             toast.error("You must be logged in to track plants");
-            return;
-        }
-        if (!values.image) {
-            toast.error("Plant image is required");
-            return;
-        }
-        if (typeof values.lat !== "number" || typeof values.lng !== "number") {
-            toast.error("Latitude and longitude are required");
             return;
         }
         setIsSubmitting(true);
@@ -224,7 +277,9 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                 lng: undefined,
                 image: undefined,
             });
-            setPreviewImage(null);
+            clearPreviewImage();
+            setAddress(null);
+            setLocationHint("We'll use this to geotag your plant discovery");
 
             // Invalidate and refetch queries - this will trigger updates across all components
             await queryClient.invalidateQueries({
@@ -278,6 +333,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                                 placeholder="Enter plant name"
                                                 {...field}
                                                 required
+                                                aria-busy={isGenerating}
                                                 className="h-11 flex-1 rounded-xl border-border bg-background/80"
                                             />
                                         </FormControl>
@@ -286,6 +342,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                             variant="outline"
                                             onClick={generatePlantInfo}
                                             disabled={isGenerating || !field.value || field.value.length < 2}
+                                            aria-busy={isGenerating}
                                             className="h-11 shrink-0 rounded-xl border-primary/20 bg-secondary/60 px-4 text-primary hover:bg-secondary"
                                         >
                                             {isGenerating ? (
@@ -297,8 +354,13 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                         </Button>
                                     </div>
                                     <FormMessage />
-                                    <p className="text-xs text-muted-foreground">
+                                    <FormDescription className="text-xs">
                                         Enter plant name and click Generate to auto-fill category and description
+                                    </FormDescription>
+                                    <p aria-live="polite" className="text-xs text-muted-foreground">
+                                        {isGenerating
+                                            ? "Generating category and description..."
+                                            : ""}
                                     </p>
                                 </FormItem>
                             )}
@@ -342,7 +404,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                             Plant Image *
                                         </FormLabel>
                                         <FormControl>
-                                            <label className="block cursor-pointer">
+                                            <label className="block cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/40 focus-within:ring-offset-2">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -371,6 +433,9 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                                             <p className="text-xs font-semibold text-primary">
                                                                 Click to change image
                                                             </p>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                {field.value?.name}
+                                                            </p>
                                                         </div>
                                                     ) : (
                                                         <>
@@ -378,7 +443,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                                                 <ImageIcon className="h-5 w-5" />
                                                             </div>
                                                             <p className="mt-3 text-sm font-semibold">
-                                                                Click to upload or drag and drop
+                                                                Click to upload
                                                             </p>
                                                             <p className="mt-1 text-xs text-muted-foreground">
                                                                 JPG, PNG up to 10MB
@@ -396,13 +461,16 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                                 size="sm"
                                                 onClick={() => {
                                                     field.onChange(undefined);
-                                                    setPreviewImage(null);
+                                                    clearPreviewImage();
                                                 }}
                                                 className="h-8 px-0 text-xs text-muted-foreground hover:text-foreground"
                                             >
                                                 Remove image
                                             </Button>
                                         )}
+                                        <FormDescription className="text-xs">
+                                            Upload a clear photo so the discovery is easy to identify.
+                                        </FormDescription>
                                     </FormItem>
                                 )}
                             />
@@ -445,6 +513,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                 type="button"
                                 variant="secondary"
                                 onClick={getCurrentLocation}
+                                aria-busy={isLocating}
                                 className="group relative h-11 w-full overflow-hidden rounded-xl border border-primary/15 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--secondary)_72%,white),color-mix(in_oklch,var(--accent)_12%,white))] px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent"
                                 disabled={isLocating}
                             >
@@ -465,8 +534,11 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                     </span>
                                 )}
                             </Button>
-                            <p className="text-xs text-muted-foreground">
-                                We&apos;ll use this to geotag your plant discovery
+                            <FormDescription className="text-xs">
+                                {locationHint}
+                            </FormDescription>
+                            <p aria-live="polite" className="text-xs text-muted-foreground">
+                                {isLocating ? "Fetching your location..." : ""}
                             </p>
                         </div>
 

@@ -2,7 +2,6 @@
 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Plant } from "@/lib/types";
 
@@ -165,18 +164,10 @@ function createPopupHtml(plant: Plant) {
   const safeDescription = plant.description ? escapeHtml(plant.description) : "";
   const safeUserName = escapeHtml(plant.user_name);
   const safePid = escapeHtml(plant.pid);
-  const safeImageUrl = plant.image_url ? escapeAttribute(plant.image_url) : "";
 
   return `
     <div style="display:flex;flex-direction:column;gap:8px;max-width:300px">
       <h3 style="font-weight:700;margin:0">${safeName}</h3>
-      ${
-        safeImageUrl
-          ? `<img src="${safeImageUrl}" alt="${escapeAttribute(
-              plant.name,
-            )}" style="width:100%;height:128px;object-fit:cover;border-radius:8px" />`
-          : ""
-      }
       ${safeDescription ? `<p style="font-size:14px;margin:0">${safeDescription}</p>` : ""}
       <p style="font-size:12px;color:#6b7280;margin:0">Tracked by ${safeUserName}</p>
       <p style="font-size:12px;color:#6b7280;margin:0">${createdAt.toLocaleDateString()} at ${createdAt.toLocaleTimeString()}</p>
