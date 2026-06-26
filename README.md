@@ -1,93 +1,272 @@
 # Flora
 
-Flora is a comprehensive digital plant directory designed to help users discover, identify, and map flora from around the world. It serves as a platform for plant enthusiasts to document their findings, manage their personal plant collections, and explore a global map of plant life.
+Flora is a mobile-first plant discovery app for tracking, mapping, and sharing plant sightings. It combines a public discovery experience with personal plant tracking, search, leaderboards, and a contributor-friendly Supabase backend.
 
-## Features
+This repository is open source and actively evolving. If you want to contribute, this README is meant to get you from clone to meaningful PR without needing tribal knowledge.
 
-- **Interactive Map**: Explore a real-time global map populated with plant discoveries. View locations where specific flora has been spotted.
-- **Advanced Search**: A powerful search engine to find specific plants or browse through the directory.
-- **Personal Dashboard**: A management interface for users to organize their own plant collections, track growth, and manage their contributions.
-- **Leaderboard**: A gamified element where users can climb ranks based on their botanical discoveries and contributions to the platform.
-- **Plant Identification & Tracking**: users can log details such as plant name, category, description, location (latitude/longitude), and images.
+## What Flora includes
 
-## Technology Stack
+- Public landing page and map experience
+- Plant discovery feed with images, locations, and contributor info
+- Personal dashboard for tracked plants
+- Search by plant name, PID, description, contributor, and location context
+- Community leaderboard
+- Plant creation flow with image upload and geolocation
+- AI-assisted plant description generation with Gemini
 
-This project is built using a modern web development stack:
+## Tech stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: GSAP, Framer Motion
-- **Database**: PostgreSQL (via Supabase)
-- **ORM**: Drizzle ORM
-- **Maps**: Leaflet / React-Leaflet
-- **Authentication**: Supabase Auth
-- **Forms & Validation**: React Hook Form, Zod
-- **Icons**: Lucide React
+- Next.js 15 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Supabase Auth, Postgres, and Storage
+- Drizzle ORM + SQL migrations
+- React Query
+- React Hook Form + Zod
+- Leaflet / React Leaflet
+- Framer Motion + GSAP
 
-## Getting Started
+## Project structure
 
-### Prerequisites
+```text
+src/
+  app/                  Next.js routes, API routes, metadata, auth wiring
+  components/           Shared and route-level UI
+  db/                   Drizzle schema
+  lib/                  Shared helpers and constants
+  server/               Server-side domain logic, validation, storage, auth
+scripts/                Local utility scripts
+setup/                  Setup notes for external integrations
+supabase/migrations/    SQL migrations, RLS, functions, and RPCs
+```
 
-Ensure you have the following installed:
+## Prerequisites
 
-- Node.js (Latest LTS recommended)
-- npm, yarn, pnpm, or bun
+Please use:
 
-### Installation
+- Node.js 20+
+- pnpm
+- A Supabase project
+- A Gemini API key for AI-generated plant descriptions
 
-1. Clone the repository:
+## Getting started
 
-   ```bash
-   git clone <repository-url>
-   ```
+1. Clone the repo
 
-2. Navigate to the project directory:
+```bash
+git clone <your-fork-or-repo-url>
+cd flora
+```
 
-   ```bash
-   cd flora
-   ```
+2. Install dependencies
 
-3. Install dependencies:
+```bash
+pnpm install
+```
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   # or
-   bun install
-   ```
+3. Create a local `.env`
 
-4. Set up environment variables:
-   Create a `.env` file in the root directory and configure the necessary environment variables for Supabase and your database connection.
+Copy `.env.example` to `.env`, then replace the placeholder values with your own project credentials:
 
-5. Run the exploration server:
+```bash
+cp .env.example .env
+```
 
-   ```bash
-   npm run dev
-   ```
+4. Apply database changes
 
-   Open http://localhost:3000 with your browser to see the application.
+For a fresh Supabase project, run:
 
-## Database Management
+```bash
+pnpm db:migrate
+pnpm db:apply
+```
 
-This project uses Drizzle ORM for database management.
+What these do:
 
-- **Generate Migrations**: `npm run db:generate`
-- **Push Schema**: `npm run db:push`
-- **Run Migrations**: `npm run db:migrate`
-- **Open Studio**: `npm run db:studio` (Opens Drizzle Studio to view database)
+- `db:migrate` applies Drizzle-managed schema migrations
+- `db:apply` applies raw SQL required for RLS, helper functions, and leaderboard RPCs
 
-## Project Structure
+5. Start the app
 
-- `src/app`: Application routes and pages (Next.js App Router).
-- `src/components`: Reusable UI components.
-- `src/db`: Database schema and configuration.
-- `src/lib`: Utility functions and helper libraries.
-- `public`: Static assets.
+```bash
+pnpm dev
+```
+
+Then open `http://localhost:3000`.
+
+## Environment variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Public client key used by the browser and server SSR client |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Required for trusted server actions like storage upload and admin-side operations |
+| `DATABASE_URL` | Yes | Direct Postgres connection used by Drizzle and migration tooling |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL for metadata, redirects, sitemap, and SEO |
+| `GEMINI_API_KEY` | Optional but recommended | Enables AI-generated plant descriptions |
+| `SUPABASE_PLANT_IMAGES_BUCKET` | Optional | Overrides the default storage bucket name (`plants`) |
+
+## Available scripts
+
+```bash
+pnpm dev         # Start local development server
+pnpm build       # Production build
+pnpm start       # Run production build locally
+pnpm lint        # Run ESLint
+pnpm test        # Run server-side tests
+pnpm db:generate # Generate Drizzle migrations
+pnpm db:migrate  # Apply Drizzle migrations
+pnpm db:push     # Push schema directly with Drizzle
+pnpm db:apply    # Apply manual Supabase SQL migrations / RLS
+pnpm db:studio   # Open Drizzle Studio
+pnpm db:check    # Check migration drift
+```
+
+## Contribution workflow
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contributor conventions and PR expectations.
+
+1. Fork the repo
+2. Create a feature branch
+3. Make a focused change
+4. Run the relevant checks
+5. Open a PR with clear notes, screenshots, and migration details if applicable
+
+Recommended branch naming:
+
+```text
+feat/map-filters
+fix/mobile-plant-form
+chore/readme-refresh
+```
+
+## Before opening a PR
+
+Please try to cover the basics:
+
+```bash
+pnpm lint
+pnpm test
+pnpm exec tsc --noEmit
+```
+
+If your change touches schema, auth, storage, or policies:
+
+- mention the database impact in the PR
+- include any required migration files
+- explain whether contributors need to run `pnpm db:migrate`, `pnpm db:apply`, or both
+
+If your change touches UI:
+
+- test mobile first
+- include screenshots or a short screen recording
+- note any responsive behavior changes
+
+## Database notes
+
+The current schema centers on the `plants` table in [src/db/schema.ts](./src/db/schema.ts).
+
+Important backend behavior:
+
+- Plant IDs use a generated public PID via a Postgres helper
+- Latitude and longitude are range-checked in the schema
+- Supabase RLS and SQL functions live under `supabase/migrations/`
+- Leaderboard data is served through a SQL RPC with a code fallback
+
+If you add or change schema:
+
+1. Update the Drizzle schema
+2. Generate or add the migration
+3. Update any matching raw SQL if RLS, functions, or RPCs need changes
+4. Verify the app still works against a clean database
+
+## Auth and storage notes
+
+- Authentication uses Supabase OAuth/session handling
+- Plant image uploads go through Supabase Storage
+- Public plant images are loaded through Next.js remote image config
+- Service-role access must stay server-only
+
+Please do not:
+
+- commit real secrets
+- expose service-role keys to the client
+- rely on client-side checks alone for protected actions
+
+## AI integration
+
+Flora can generate short plant descriptions through Gemini.
+
+See:
+
+- [setup/GEMINI_SETUP.md](./setup/GEMINI_SETUP.md)
+
+The app falls back to predefined descriptions when Gemini is unavailable.
+
+## Design and product expectations
+
+Flora is intended to feel clean, useful, and mobile-first rather than flashy. When contributing UI work:
+
+- optimize for mobile first, then scale up
+- keep spacing and border radii consistent
+- preserve real usability over decorative complexity
+- prefer existing component patterns over introducing a new visual system
+
+## Accessibility expectations
+
+Please keep accessibility in scope for every UI PR:
+
+- keyboard reachable controls
+- visible focus states
+- semantic buttons, labels, and headings
+- helpful loading and error states
+- no misleading UI copy
+
+## Troubleshooting
+
+### `pnpm db:migrate` fails
+
+Check:
+
+- `DATABASE_URL` is present
+- your Supabase database is reachable
+- your password is URL-safe or correctly escaped
+
+### Auth redirects behave strangely
+
+Check:
+
+- `NEXT_PUBLIC_SITE_URL` matches your local or deployed URL
+- Supabase Auth redirect URLs include your app URL and callback route
+
+### Images fail in `next/image`
+
+Check:
+
+- `NEXT_PUBLIC_SUPABASE_URL` is correct
+- the image comes from your Supabase storage public path
+- the bucket is public if you expect public rendering
+
+### AI descriptions always fall back
+
+Check:
+
+- `GEMINI_API_KEY` is set
+- the Gemini API key has access enabled
+- your server logs for provider errors
+
+## Security
+
+If you find a security issue, please avoid posting exploit details in a public issue. Reach out privately to the maintainer first if possible.
+
+At minimum, please include:
+
+- affected area
+- reproduction steps
+- impact
+- suggested mitigation if you have one
 
 ## License
 
-[Add License Information Here]
+[MIT](./LICENSE)
