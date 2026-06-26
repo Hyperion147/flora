@@ -8,24 +8,8 @@
    - Environments: .env
 
  ✓ Starting...
- ✓ Ready in 2.4s
+ ✓ Ready in 2.1s
  ○ Compiling / ...
- ✓ Compiled / in 14s (2063 modules)
- GET / 200 in 15442ms
- GET / 200 in 923ms
- GET / 200 in 369ms
- ✓ Compiled in 1069ms (2019 modules)
- GET / 200 in 228ms
- ✓ Compiled in 613ms (2019 modules)
- GET / 200 in 896ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 715ms (2024 modules)
- GET / 404 in 1012ms
- GET / 200 in 376ms
- GET / 200 in 169ms
- ✓ Compiled in 1516ms (2019 modules)
- ✓ Compiled in 1428ms (2019 modules)
- ✓ Compiled in 1407ms (2019 modules)
- ✓ Compiled in 939ms (2019 modules)
- ✓ Compiled in 811ms (2019 modules)
- ✓ Compiled in 898ms (2019 modules)
+ ✓ Compiled / in 14.6s (1985 modules)
+ GET / 200 in 5324ms
+[?25h

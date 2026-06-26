@@ -15,8 +15,8 @@ begin
 
   perform setval(
     'public.plants_pid_seq',
-    greatest(current_max, 1000),
-    true
+    greatest(current_max, 1001),
+    current_max >= 1001
   );
 end $$;
 
@@ -28,6 +28,9 @@ set search_path = public
 as $$
   select nextval('public.plants_pid_seq')::text;
 $$;
+
+alter table public.plants
+  alter column pid set default public.next_plant_pid();
 
 create or replace function public.plant_leaderboard(p_limit integer default 50)
 returns table (
@@ -54,5 +57,5 @@ revoke all on function public.next_plant_pid() from public;
 revoke all on function public.plant_leaderboard(integer) from public;
 
 grant execute on function public.next_plant_pid() to service_role;
+grant execute on function public.next_plant_pid() to authenticated;
 grant execute on function public.plant_leaderboard(integer) to anon, authenticated, service_role;
-

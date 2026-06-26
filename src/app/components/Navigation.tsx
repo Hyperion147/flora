@@ -162,26 +162,6 @@ export default function Navigation() {
         </nav>
 
         <div className="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            aria-label="Toggle green accent mode"
-            aria-pressed={greenAccent}
-            onClick={() => setGreenAccent((value) => !value)}
-            className={cn(
-              "flora-glass-soft relative flex h-10 w-20 items-center rounded-full text-xs font-black text-muted-foreground transition-colors",
-              greenAccent && "bg-primary text-primary-foreground"
-            )}
-          >
-            <span
-              className={cn(
-                "absolute h-8 w-8 rounded-full bg-secondary shadow-sm transition-transform",
-                greenAccent ? "translate-x-[43px] bg-primary" : "translate-x-1"
-              )}
-            />
-            <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-primary-foreground/55")} />
-            <Leaf className={cn("relative z-10 h-4 w-4 flex-1", greenAccent ? "text-primary-foreground" : "text-muted-foreground/55")} />
-          </button>
-
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -234,6 +214,25 @@ export default function Navigation() {
               </Link>
             </Button>
           )}
+          <button
+            type="button"
+            aria-label="Toggle green accent mode"
+            aria-pressed={greenAccent}
+            onClick={() => setGreenAccent((value) => !value)}
+            className={cn(
+              "flora-glass-soft relative flex h-10 w-20 items-center rounded-full text-xs font-black text-muted-foreground transition-colors",
+              greenAccent && "bg-primary text-primary-foreground"
+            )}
+          >
+            <span
+              className={cn(
+                "absolute h-8 w-8 rounded-full bg-secondary shadow-sm transition-transform",
+                greenAccent ? "translate-x-[43px] bg-primary" : "translate-x-1"
+              )}
+            />
+            <Sun className={cn("relative z-10 h-4 w-4 flex-1", greenAccent && "text-primary")} />
+            <Leaf className={cn("relative z-10 h-4 w-4 flex-1", greenAccent ? "text-primary-foreground" : "text-muted-foreground/55")} />
+          </button>
         </div>
       </div>
     </header>
