@@ -133,7 +133,7 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ delay: index * 0.05 }}
-            className="flora-glass group flex min-h-[560px] flex-col rounded-2xl py-4 px-5 transition-all hover:-translate-y-px"
+            className="flora-glass group flex min-h-140 flex-col rounded-2xl py-4 px-5 transition-all hover:-translate-y-px"
           >
             <h3 className="text-xl font-black text-card-foreground">
               {feature.title}

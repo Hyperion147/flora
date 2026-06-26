@@ -5,7 +5,6 @@ import { FeaturesSection } from "./FeaturesSection";
 import { FloraFooter } from "./FloraFooter";
 import { HeroSection } from "./HeroSection";
 import { ImpactSection } from "./ImpactSection";
-import { StepsSection } from "./StepsSection";
 import { StorySection } from "./StorySection";
 
 export default function LandingPage() {
@@ -17,7 +16,6 @@ export default function LandingPage() {
       <HeroSection startHref={startHref} />
       <FeaturesSection />
       <ImpactSection />
-      <StepsSection />
       <StorySection startHref={startHref} />
       <FloraFooter />
     </main>

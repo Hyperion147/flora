@@ -7,7 +7,7 @@ export function StorySection({ startHref }: { startHref: string }) {
   return (
     <section className="flora-full-bleed w-screen bg-[linear-gradient(180deg,var(--flora-section)_0%,var(--background)_100%)] px-[clamp(1rem,5vw,5.5rem)] py-16">
       <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="flora-glass rounded-[2rem] bg-secondary/70 p-[clamp(1.5rem,4vw,4rem)]">
+        <div className="flora-glass rounded-2xl bg-secondary/70 p-[clamp(1.5rem,4vw,4rem)]">
           <div className="grid items-center gap-8 md:grid-cols-[auto_1fr]">
             <div className="relative h-36 w-36 overflow-hidden rounded-full border-8 border-card">
               <Image
@@ -40,7 +40,7 @@ export function StorySection({ startHref }: { startHref: string }) {
           </div>
         </div>
 
-        <div className="flora-glass-dark relative min-h-[340px] overflow-hidden rounded-[2rem] bg-[var(--flora-deep)] p-8 text-primary-foreground">
+        <div className="flora-glass-dark relative min-h-85 overflow-hidden rounded-2xl bg-(--flora-deep)] p-8 text-primary-foreground">
           <Image
             src="/hero-plants.png"
             alt=""
@@ -66,7 +66,7 @@ export function StorySection({ startHref }: { startHref: string }) {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 w-full rounded-xl border-primary-foreground/40 bg-primary-foreground/5 text-primary-foreground hover:bg-primary-foreground/10"
+                className="h-12 w-full rounded-xl border-primary-foreground/40 bg-primary-foreground/5 text-primary-foreground hover:bg-primary-foreground/50 text-shadow-2xs backdrop-blur-md"
               >
                 <Link href="/map">Explore the Map</Link>
               </Button>
