@@ -12,7 +12,7 @@ export default function LandingPage() {
   const startHref = user ? "/dashboard" : "/login";
 
   return (
-    <main className="flora-landing-page w-full overflow-hidden bg-background text-foreground">
+    <main className="flora-landing-page w-full overflow-x-hidden bg-background text-foreground">
       <HeroSection startHref={startHref} />
       <FeaturesSection />
       <ImpactSection />

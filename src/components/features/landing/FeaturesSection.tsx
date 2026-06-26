@@ -111,21 +111,23 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="flora-full-bleed relative w-screen overflow-hidden bg-[linear-gradient(180deg,var(--flora-section)_0%,var(--background)_100%)] p-20"
+      className="flora-full-bleed relative z-20 -mt-10 w-screen overflow-hidden rounded-t-[2rem] bg-[linear-gradient(180deg,var(--flora-section)_0%,var(--background)_100%)] px-4 py-14 sm:-mt-12 sm:px-6 sm:py-16 lg:mt-0 lg:rounded-none lg:px-20 lg:py-20"
     >
       <FloatingLeaves />
 
-      <div className="relative z-10 mx-auto text-center">
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
         <div className="flora-glass-soft mx-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-primary">
           Features
         </div>
-        <h2 className="mt-6 font-sans text-xl font-black">
+        <h2 className="mt-5 font-sans text-lg font-black sm:mt-6 sm:text-xl">
           Everything You Need to
-          <span className="block text-primary text-6xl">Explore & Track Plants</span>
+          <span className="mt-2 block text-[clamp(2.2rem,8vw,4.5rem)] leading-[0.95] text-primary">
+            Explore & Track Plants
+          </span>
         </h2>
       </div>
 
-      <div className="relative z-10 mt-12 grid w-full gap-5 md:grid-cols-2 xl:grid-cols-5">
+      <div className="relative z-10 mt-10 grid w-full gap-4 sm:mt-12 sm:gap-5 md:grid-cols-2 xl:grid-cols-5">
         {features.map((feature, index) => (
           <motion.article
             key={feature.title}
@@ -133,12 +135,12 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ delay: index * 0.05 }}
-            className="flora-glass group flex min-h-140 flex-col rounded-2xl py-4 px-5 transition-all hover:-translate-y-px"
+            className="flora-glass group flex min-h-[31rem] flex-col rounded-2xl px-4 py-4 transition-all hover:-translate-y-px sm:min-h-[34rem] sm:px-5 xl:min-h-[36rem]"
           >
-            <h3 className="text-xl font-black text-card-foreground">
+            <h3 className="text-lg font-black text-card-foreground sm:text-xl">
               {feature.title}
             </h3>
-            <p className="mt-2 min-h-[88px] text-sm leading-6 text-muted-foreground">
+            <p className="mt-2 min-h-[72px] text-xs leading-5 text-muted-foreground sm:min-h-[88px] sm:text-sm sm:leading-6">
               {feature.text}
             </p>
             <FeaturePreview kind={feature.preview} />

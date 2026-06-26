@@ -16,28 +16,28 @@ const LandingMiniMap = dynamic(() => import("./LandingMiniMap"), {
 
 export function HeroSection({ startHref }: { startHref: string }) {
     return (
-        <section className="flora-full-bleed relative min-h-screen w-screen overflow-hidden bg-[radial-gradient(circle_at_14%_42%,color-mix(in_oklch,var(--accent)_36%,transparent),transparent_28%),radial-gradient(circle_at_86%_14%,color-mix(in_oklch,var(--primary)_18%,transparent),transparent_30%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_74%,var(--flora-hero-end)_100%)] px-[clamp(1rem,5vw,5.5rem)] pb-10 pt-12">
+        <section className="flora-full-bleed relative min-h-[100svh] w-screen overflow-visible bg-[radial-gradient(circle_at_14%_42%,color-mix(in_oklch,var(--accent)_36%,transparent),transparent_28%),radial-gradient(circle_at_86%_14%,color-mix(in_oklch,var(--primary)_18%,transparent),transparent_30%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_74%,var(--flora-hero-end)_100%)] px-[clamp(1rem,5vw,5.5rem)] pt-40 sm:pt-12 pb-0 sm:pb-10">
             <Image
                 src="/side-plants.png"
                 alt=""
                 width={520}
                 height={520}
                 priority
-                className="pointer-events-none absolute -left-36 bottom-0 z-0 w-80 -scale-x-100 rotate-[-8deg] opacity-45 lg:w-100 blur-[2px]"
+                className="pointer-events-none absolute -left-28 bottom-8 z-0 w-44 -scale-x-100 rotate-[-8deg] opacity-35 blur-[2px] sm:w-56 lg:-left-36 lg:bottom-0 lg:w-100 lg:opacity-45"
             />
-            <div className="relative z-10 grid min-h-[calc(100vh-9rem)] w-full grid-cols-1 items-center gap-12 lg:grid-cols-[0.86fr_1.14fr]">
+            <div className="relative z-10 grid min-h-[calc(100svh-7rem)] w-full grid-cols-1 items-start gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:gap-12">
                 <motion.div
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.65, ease: "easeOut" }}
-                    className="max-w-3xl"
+                    className="max-w-3xl pt-2 sm:pt-6 lg:pt-0"
                 >
-                    <div className="flora-glass-soft mb-7 inline-flex items-center gap-3 rounded-full bg-secondary/78 px-5 py-3 text-sm font-black text-primary shadow-sm">
-                        <Leaf className="h-5 w-5" />
+                    <div className="flora-glass-soft mb-5 inline-flex items-center gap-2 rounded-full bg-secondary/78 px-4 py-2 text-xs font-black text-primary shadow-sm sm:mb-7 sm:gap-3 sm:px-5 sm:py-3 sm:text-sm">
+                        <Leaf className="h-4 w-4 sm:h-5 sm:w-5" />
                         Your Global Plant Companion
                     </div>
 
-                    <h1 className="font-serif text-4xl sm:text-6xl font-black leading-[0.98] tracking-normal text-foreground">
+                    <h1 className="max-w-[11ch] font-serif text-[clamp(2.7rem,10vw,5rem)] font-black leading-[0.94] tracking-normal text-foreground sm:max-w-none">
                         Discover, Track
                         <span className="block">&amp;</span>
                         <span className="block text-primary">
@@ -45,20 +45,20 @@ export function HeroSection({ startHref }: { startHref: string }) {
                         </span>
                     </h1>
 
-                    <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
+                    <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-8 lg:text-xl">
                         Flora helps you catalog plants, explore the world&apos;s
                         flora, and connect with a global community of plant
                         lovers. It is free, useful, and built for real
                         discoveries.
                     </p>
 
-                    <div className="mt-9 flex w-full max-w-xl flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="mt-7 flex w-full max-w-xl flex-col gap-3 sm:mt-9 sm:flex-row sm:items-center sm:gap-4">
                         <Button
                             asChild
-                            className="h-11 w-full justify-between rounded-full bg-primary text-base font-black text-primary-foreground shadow-xl shadow-primary/24 hover:bg-primary/90 sm:w-auto"
+                            className="h-11 w-full justify-between rounded-full bg-primary px-4 text-sm font-black text-primary-foreground shadow-xl shadow-primary/24 hover:bg-primary/90 sm:h-12 sm:w-auto sm:text-base"
                         >
                             <Link href={startHref} className="gap-4">
-                                <Sprout className="h-5 w-5" />
+                                <Sprout className="h-4 w-4 sm:h-5 sm:w-5" />
                                 <span className="flex-1 text-left">
                                     Start Your Garden
                                 </span>
@@ -67,13 +67,34 @@ export function HeroSection({ startHref }: { startHref: string }) {
                         <Button
                             asChild
                             variant="outline"
-                            className="flora-glass-soft h-11 w-full rounded-full border-border/70 bg-card/70 text-base font-black text-primary hover:bg-secondary sm:w-auto sm:min-w-48"
+                            className="flora-glass-soft h-11 w-full rounded-full border-border/70 bg-card/70 px-4 text-sm font-black text-primary hover:bg-secondary sm:h-12 sm:w-auto sm:min-w-48 sm:text-base"
                         >
                             <Link href="/map" className="gap-3">
-                                <Map className="h-5 w-5" />
+                                <Map className="h-4 w-4 sm:h-5 sm:w-5" />
                                 Explore Map
                             </Link>
                         </Button>
+                    </div>
+
+                    <div className="mt-8 flex flex-wrap items-center gap-4 sm:mt-10 sm:gap-6">
+                        <div className="flex -space-x-3">
+                            {[
+                                "bg-[linear-gradient(135deg,#f1c8a7,#80553b)]",
+                                "bg-[linear-gradient(135deg,#f5d1dc,#704454)]",
+                                "bg-[linear-gradient(135deg,#b8d8f0,#334d6b)]",
+                                "bg-[linear-gradient(135deg,var(--accent),var(--primary))]",
+                            ].map((className, index) => (
+                                <span
+                                    key={index}
+                                    className={`grid size-10 place-items-center rounded-full border-4 border-background text-[10px] font-black text-primary-foreground shadow-md sm:size-12 sm:text-xs ${className}`}
+                                >
+                                    {["A", "M", "R", "S"][index]}
+                                </span>
+                            ))}
+                        </div>
+                        <p className="max-w-48 text-sm leading-5 text-muted-foreground sm:max-w-56 sm:text-base sm:leading-6">
+                            Join thousands of plant lovers worldwide
+                        </p>
                     </div>
                 </motion.div>
                 <HeroProductCollage />
@@ -88,7 +109,7 @@ function HeroProductCollage() {
             initial={{ opacity: 0, x: 56, rotate: 1.2 }}
             animate={{ opacity: 1, x: 0, rotate: 0 }}
             transition={{ duration: 0.82, delay: 0.08, ease: "easeOut" }}
-            className="relative w-full lg:min-h-170"
+            className="pointer-events-none hidden md:flex absolute bottom-[1rem] left-1/2 z-0 w-[118%] max-w-none -translate-x-[42%] scale-[0.66] opacity-95 sm:bottom-[-9rem] sm:w-[108%] sm:scale-[0.78] lg:pointer-events-auto lg:relative lg:bottom-auto lg:left-auto lg:z-10 lg:w-full lg:max-w-full lg:translate-x-0 lg:scale-100 lg:opacity-100 lg:min-h-170"
         >
             <div className="flora-glass absolute right-0 top-12 z-20 hidden h-125 w-64 rotate-[1.5deg] rounded-2xl bg-card/76 p-5 opacity-80 shadow-2xl xl:block">
                 <PhoneGardenPanel />
@@ -154,14 +175,16 @@ function MiniMetric({
     label: string;
 }) {
     return (
-        <div className="rounded-xl border border-border bg-background/76 px-4 py-2 text-center shadow-sm flex items-center gap-2">
-            <span className="mx-auto grid size-7 place-items-center rounded-lg bg-secondary text-primary">
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-background/76 px-3 py-2 text-left shadow-sm sm:px-4">
+            <span className="grid size-7 place-items-center rounded-lg bg-secondary text-primary">
                 <Icon className="h-4 w-4" />
             </span>
-            <p className="mt-2 text-lg font-black text-foreground">{value}</p>
-            <p className="text-[10px] font-semibold text-muted-foreground">
-                {label}
-            </p>
+            <div>
+                <p className="text-base font-black text-foreground sm:text-lg">{value}</p>
+                <p className="text-[10px] font-semibold text-muted-foreground">
+                    {label}
+                </p>
+            </div>
         </div>
     );
 }
