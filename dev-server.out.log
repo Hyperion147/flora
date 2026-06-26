@@ -1,0 +1,15 @@
+
+> flora@1.3.0 dev X:\webdev\flora
+> next dev
+
+   ▲ Next.js 15.5.19
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.34:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling /map ...
+ ✓ Compiled /map in 8.3s (1225 modules)
+ ✓ Compiled in 417ms (532 modules)
+[?25h

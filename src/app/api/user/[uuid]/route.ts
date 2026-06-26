@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/app/supabase/server';
-
-export function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-    },
-  });
-}
+import { requireAuthenticatedUser } from '@/server/auth';
+import { handleRouteError, jsonError } from '@/server/http';
 
 export const dynamic = 'force-dynamic'
 
@@ -21,23 +12,11 @@ export async function GET(
   try {
     const params = await ctx.params;
     const supabase = await createClient();
-
-    // Get the current authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
+    const user = await requireAuthenticatedUser(supabase);
 
     // Check if the requested user ID matches the authenticated user
     if (user.id !== params.uuid) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      );
+      return jsonError('Unauthorized', 403);
     }
 
     // Return user data from auth
@@ -52,10 +31,6 @@ export async function GET(
 
     return NextResponse.json(userData);
   } catch (error) {
-    console.error('Error in user GET:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleRouteError(error, 'Error fetching user');
   }
 }

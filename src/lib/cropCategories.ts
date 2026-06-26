@@ -164,7 +164,7 @@ export default CROP_CATEGORIES;
 export function getCropCategory(cropName: string): string | null {
   const normalizedCropName = cropName.toLowerCase();
   
-  for (const [_categoryKey, category] of Object.entries(CROP_CATEGORIES)) {
+  for (const category of Object.values(CROP_CATEGORIES)) {
     // Check direct crops array
     if ('crops' in category && category.crops.some(crop => 
       crop.toLowerCase().includes(normalizedCropName) || 
