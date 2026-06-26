@@ -48,6 +48,14 @@ const navLinks = [
   { href: "#features", label: "About", icon: Info },
 ];
 
+const mobileNavLinks = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/map", label: "Map", icon: Map },
+  { href: "/dashboard", label: "Garden", icon: Grid2X2 },
+  { href: "/search", label: "Search", icon: Search },
+  { href: "/leaderboard", label: "Ranks", icon: Trophy },
+];
+
 export default function Navigation() {
   const { user } = useAuth();
   const router = useRouter();
@@ -118,27 +126,28 @@ export default function Navigation() {
   };
 
   return (
+    <>
     <header className="flora-navbar flora-glass fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90">
-      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 px-[clamp(1rem,4vw,4rem)] py-3 lg:grid-cols-[auto_1fr_auto]">
+      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:px-5 lg:grid-cols-[auto_1fr_auto] lg:px-[clamp(1rem,4vw,4rem)]">
         <Link href="/" className="flex min-w-0 items-center gap-3">
-          <span className="flora-glass-soft flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform">
+          <span className="flora-glass-soft flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform sm:h-12 sm:w-12">
             <Image
               src="/logo-flora.png"
               alt="Flora logo"
               width={40}
               height={40}
-              className="h-10 w-10 object-contain"
+              className="h-8 w-8 object-contain sm:h-10 sm:w-10"
               priority
             />
           </span>
           <span className="min-w-0">
-            <span className="block font-serif text-2xl font-black leading-none text-primary">
+            <span className="block font-serif text-xl font-black leading-none text-primary sm:text-2xl">
               Flora
             </span>
           </span>
         </Link>
 
-        <nav className="no-scrollbar order-3 col-span-2 flex w-full items-center gap-1 overflow-x-auto border-t border-border pt-3 lg:order-none lg:col-span-1 lg:justify-center lg:border-t-0 lg:pt-0">
+        <nav className="no-scrollbar order-3 col-span-2 hidden w-full items-center gap-1 overflow-x-auto border-t border-border pt-3 lg:order-none lg:col-span-1 lg:flex lg:justify-center lg:border-t-0 lg:pt-0">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const active = isActive(link.href);
@@ -165,7 +174,7 @@ export default function Navigation() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="h-11 rounded-full bg-primary px-3 font-bold text-primary-foreground hover:bg-primary/90">
+                <Button className="h-10 rounded-full bg-primary px-2.5 font-bold text-primary-foreground hover:bg-primary/90 sm:h-11 sm:px-3">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={avatarUrl} alt={userName} />
                     <AvatarFallback className="bg-secondary text-xs text-primary">
@@ -206,11 +215,11 @@ export default function Navigation() {
           ) : (
             <Button
               asChild
-              className="h-10 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
+              className="h-10 rounded-full bg-primary px-3.5 font-bold text-primary-foreground hover:bg-primary/90 sm:px-5"
             >
               <Link href="/login">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign In</span>
+                <span>Sign In</span>
               </Link>
             </Button>
           )}
@@ -236,5 +245,28 @@ export default function Navigation() {
         </div>
       </div>
     </header>
+    <nav className="flora-glass fixed inset-x-3 bottom-3 z-50 flex items-center justify-between rounded-2xl border border-border bg-background/92 p-1.5 shadow-2xl shadow-foreground/10 backdrop-blur-lg lg:hidden">
+      {mobileNavLinks.map((link) => {
+        const Icon = link.icon;
+        const active = isActive(link.href);
+
+        return (
+          <Link
+            key={`${link.label}-${link.href}-mobile`}
+            href={link.href}
+            className={cn(
+              "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-bold transition-all",
+              active
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-foreground/70 hover:bg-card/60 hover:text-foreground",
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="truncate">{link.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

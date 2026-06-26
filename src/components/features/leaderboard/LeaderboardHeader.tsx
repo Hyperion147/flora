@@ -16,10 +16,9 @@ export function LeaderboardHeader() {
           </h1>
         </div>
       </div>
-      <p className="mt-3 text-muted-foreground">
+      <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
         Top contributors tracking the most plants.
       </p>
     </header>
   );
 }
-

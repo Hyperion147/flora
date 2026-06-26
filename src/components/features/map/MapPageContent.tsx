@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
@@ -17,16 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Plant } from "@/lib/types";
-import {
-    Filter,
-    Globe2,
-    Leaf,
-    MapPin,
-    Search,
-    Sprout,
-    Users,
-    X,
-} from "lucide-react";
+import { Filter, Globe2, Leaf, MapPin, Search, Users } from "lucide-react";
 
 const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
     ssr: false,
@@ -35,7 +26,7 @@ const PlantMap = dynamic(() => import("@/app/components/PlantMap"), {
     ),
 });
 
-const timeframeOptions = ["All Time", "Last 7 Days", "Last 30 Days"];
+const timeframeOptions = ["All Time", "Last 7 Days", "Last 30 Days"] as const;
 
 type TimeframeFilter = (typeof timeframeOptions)[number];
 
@@ -73,7 +64,6 @@ export default function MapPageContent() {
         useState<TimeframeFilter>("All Time");
     const [showOnlyGeotagged, setShowOnlyGeotagged] = useState(false);
     const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
-    const [isSelectionDismissed, setIsSelectionDismissed] = useState(false);
 
     const deferredSearchQuery = useDeferredValue(searchQuery);
 
@@ -144,23 +134,14 @@ export default function MapPageContent() {
             return;
         }
 
-        if (!selectedPlant && !isSelectionDismissed) {
-            setSelectedPlant(filteredPlants[0]);
-            return;
+        if (
+            selectedPlant &&
+            !filteredPlants.some((plant) => plant.id === selectedPlant.id)
+        ) {
+            setSelectedPlant(null);
         }
+    }, [filteredPlants, selectedPlant]);
 
-        const stillVisible = selectedPlant
-            ? filteredPlants.some((plant) => plant.id === selectedPlant.id)
-            : false;
-        if (!stillVisible) {
-            setIsSelectionDismissed(false);
-            setSelectedPlant(filteredPlants[0]);
-        }
-    }, [filteredPlants, isSelectionDismissed, selectedPlant]);
-
-    const selectedPlantDetails = isSelectionDismissed
-        ? null
-        : selectedPlant || filteredPlants[0] || null;
     const categoryOptions = useMemo(() => {
         const categories = Array.from(
             new Set(
@@ -172,13 +153,14 @@ export default function MapPageContent() {
 
         return ["All Categories", ...categories];
     }, [plants]);
+
     const contributorCount = countContributors(filteredPlants);
     const countryCount = countCountries(filteredPlants);
     const popularRegions = buildPopularRegions(filteredPlants);
     const topContributors = buildTopContributors(filteredPlants);
 
     return (
-        <main className="min-h-screen bg-[radial-gradient(circle_at_14%_16%,color-mix(in_oklch,var(--accent)_26%,transparent),transparent_25%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_88%)] px-3 pb-8 pt-24 text-foreground sm:px-5 sm:pb-10 lg:px-6 xl:px-8">
+        <main className="min-h-screen bg-[radial-gradient(circle_at_14%_16%,color-mix(in_oklch,var(--accent)_26%,transparent),transparent_25%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_88%)] px-3 pb-24 pt-22 text-foreground sm:px-5 sm:pb-10 sm:pt-24 lg:px-6 xl:px-8">
             <div className="mx-auto w-full max-w-[1680px]">
                 <section className="flora-glass relative overflow-hidden rounded-2xl border border-border/70 bg-background/72 px-4 py-5 shadow-xl shadow-foreground/5 sm:px-6 sm:py-7 lg:px-8 lg:py-9 xl:px-10 xl:py-10">
                     <Image
@@ -186,7 +168,7 @@ export default function MapPageContent() {
                         alt=""
                         width={420}
                         height={420}
-                        className="pointer-events-none absolute -right-8 top-0 hidden w-56 opacity-22 lg:block blur-[2px]"
+                        className="pointer-events-none absolute -right-8 top-0 hidden w-56 opacity-22 blur-[2px] lg:block"
                     />
 
                     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
@@ -230,112 +212,85 @@ export default function MapPageContent() {
 
                 <section className="mt-4 space-y-4">
                     <div className="flora-glass flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/72 p-3 shadow-lg shadow-foreground/5 lg:flex-row lg:flex-wrap lg:items-center">
-                            <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card/72 px-4 py-2">
-                                <Search className="h-4 w-4 shrink-0 text-primary" />
-                                <Input
-                                    value={searchQuery}
-                                    onChange={(event) =>
-                                        setSearchQuery(event.target.value)
-                                    }
-                                    placeholder="Search plants, locations, or PID..."
-                                    className="h-auto min-w-0 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
-                                />
-                            </label>
+                        <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card/72 px-4 py-2">
+                            <Search className="h-4 w-4 shrink-0 text-primary" />
+                            <Input
+                                value={searchQuery}
+                                onChange={(event) =>
+                                    setSearchQuery(event.target.value)
+                                }
+                                placeholder="Search plants, locations, or PID..."
+                                className="h-auto min-w-0 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                            />
+                        </label>
 
-                            <FilterSelect
-                                icon={Leaf}
-                                value={selectedCategory}
-                                onValueChange={setSelectedCategory}
-                                placeholder="All Categories"
-                                options={categoryOptions}
-                            />
-                            <FilterSelect
-                                icon={Globe2}
-                                value={selectedTimeframe}
-                                onValueChange={(value) =>
-                                    setSelectedTimeframe(
-                                        value as TimeframeFilter,
-                                    )
-                                }
-                                placeholder="All Time"
-                                options={timeframeOptions}
-                            />
-                            <Button
-                                type="button"
-                                variant={
-                                    showOnlyGeotagged ? "default" : "outline"
-                                }
-                                onClick={() =>
-                                    setShowOnlyGeotagged((value) => !value)
-                                }
-                                className="h-10 rounded-xl px-4 text-sm font-semibold"
-                            >
-                                <MapPin className="h-4 w-4" />
-                                {showOnlyGeotagged
-                                    ? "Geotagged Only"
-                                    : "All Plants"}
-                            </Button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSearchQuery("");
-                                    setSelectedCategory("All Categories");
-                                    setSelectedTimeframe("All Time");
-                                    setShowOnlyGeotagged(false);
-                                    setIsSelectionDismissed(false);
-                                }}
-                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-                            >
-                                <Filter className="h-4 w-4 text-primary" />
-                                Reset
-                            </button>
+                        <FilterSelect
+                            icon={Leaf}
+                            value={selectedCategory}
+                            onValueChange={setSelectedCategory}
+                            placeholder="All Categories"
+                            options={categoryOptions}
+                        />
+                        <FilterSelect
+                            icon={Globe2}
+                            value={selectedTimeframe}
+                            onValueChange={(value) =>
+                                setSelectedTimeframe(value as TimeframeFilter)
+                            }
+                            placeholder="All Time"
+                            options={timeframeOptions}
+                        />
+                        <Button
+                            type="button"
+                            variant={showOnlyGeotagged ? "default" : "outline"}
+                            onClick={() =>
+                                setShowOnlyGeotagged((value) => !value)
+                            }
+                            className="h-10 rounded-xl px-4 text-sm font-semibold"
+                        >
+                            <MapPin className="h-4 w-4" />
+                            {showOnlyGeotagged
+                                ? "Geotagged Only"
+                                : "All Plants"}
+                        </Button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSelectedCategory("All Categories");
+                                setSelectedTimeframe("All Time");
+                                setShowOnlyGeotagged(false);
+                                setSelectedPlant(null);
+                            }}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card/72 px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                        >
+                            <Filter className="h-4 w-4 text-primary" />
+                            Reset
+                        </button>
                     </div>
 
                     <div className="flora-glass overflow-hidden rounded-2xl border border-border/70 bg-background/76 p-4 shadow-xl shadow-foreground/6">
                         <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-                            <div className="relative min-w-0 overflow-hidden rounded-xl border border-border bg-card/70 sm:rounded-xl">
+                            <div className="relative min-w-0 overflow-hidden rounded-xl border border-border bg-card/70">
                                 <PlantMap
                                     plants={filteredPlants}
-                                    selectedPlant={selectedPlantDetails}
-                                    onSelectPlant={(plant) => {
-                                        setIsSelectionDismissed(false);
-                                        setSelectedPlant(plant);
-                                    }}
+                                    selectedPlant={selectedPlant}
+                                    onSelectPlant={(plant) =>
+                                        setSelectedPlant(plant)
+                                    }
                                 />
                             </div>
 
                             <aside className="flora-glass flex min-h-full flex-col rounded-xl border border-border/70 bg-background/80 p-4 shadow-lg shadow-foreground/6 sm:rounded-2xl">
-                                <div className="mb-4 flex items-center justify-between">
-                                    <h2 className="text-sm font-black">
-                                        Selected Plant
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedPlant(null);
-                                            setIsSelectionDismissed(true);
-                                        }}
-                                        className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                </div>
-
-                                {selectedPlantDetails ? (
-                                    <SelectedPlantCard
-                                        plant={selectedPlantDetails}
-                                    />
-                                ) : (
-                                    <div className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground sm:rounded-2xl">
-                                        Pick a discovery from the map or recent
-                                        list.
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-sm font-black">
+                                            Recently Added
+                                        </h2>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Click a plant to expand its details.
+                                        </p>
                                     </div>
-                                )}
-
-                                <div className="mt-6 flex items-center justify-between">
-                                    <h3 className="text-sm font-black">
-                                        Recent Discoveries
-                                    </h3>
                                     <Link
                                         href="/search"
                                         className="text-sm font-semibold text-primary"
@@ -346,26 +301,22 @@ export default function MapPageContent() {
 
                                 <div className="mt-4 flex-1 space-y-3">
                                     {filteredPlants.length ? (
-                                        filteredPlants
-                                            .slice(0, 5)
-                                            .map((plant) => (
-                                                <RecentDiscoveryRow
-                                                    key={plant.id}
-                                                    plant={plant}
-                                                    active={
-                                                        selectedPlantDetails?.id ===
-                                                        plant.id
-                                                    }
-                                                    onClick={() => {
-                                                        setIsSelectionDismissed(
-                                                            false,
-                                                        );
-                                                        setSelectedPlant(
-                                                            plant,
-                                                        );
-                                                    }}
-                                                />
-                                            ))
+                                        filteredPlants.slice(0, 5).map((plant) => (
+                                            <RecentDiscoveryRow
+                                                key={plant.id}
+                                                plant={plant}
+                                                active={
+                                                    selectedPlant?.id === plant.id
+                                                }
+                                                onClick={() => {
+                                                    setSelectedPlant((current) =>
+                                                        current?.id === plant.id
+                                                            ? null
+                                                            : plant,
+                                                    );
+                                                }}
+                                            />
+                                        ))
                                     ) : (
                                         <div className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground sm:rounded-2xl">
                                             No discoveries match the current
@@ -553,70 +504,6 @@ function FilterSelect({
     );
 }
 
-function SelectedPlantCard({ plant }: { plant: Plant }) {
-    return (
-        <div className="rounded-xl border border-border bg-card/82 p-4 shadow-sm sm:rounded-2xl">
-            <div className="flex gap-4">
-                {plant.image_url ? (
-                    <Image
-                        src={plant.image_url}
-                        alt={plant.name}
-                        width={104}
-                        height={104}
-                        className="h-24 w-24 rounded-xl object-cover sm:rounded-2xl"
-                    />
-                ) : (
-                    <div className="grid h-24 w-24 place-items-center rounded-xl bg-secondary text-primary sm:rounded-2xl">
-                        <Leaf className="h-8 w-8" />
-                    </div>
-                )}
-                <div className="min-w-0 flex-1 space-y-3">
-                    <div>
-                        <h3 className="text-2xl font-black leading-tight">
-                            {plant.name}
-                        </h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {plant.category || "Not provided"} • PID:{" "}
-                            {plant.pid}
-                        </p>
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                        <Avatar className="size-7 border border-border">
-                            <AvatarImage
-                                src={plant.user_avatar_url || undefined}
-                                alt={plant.user_name}
-                            />
-                            <AvatarFallback className="bg-secondary text-[10px] font-black text-primary">
-                                {initials(plant.user_name)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <p>
-                            Added by{" "}
-                            <span className="font-semibold text-foreground">
-                                {plant.user_name}
-                            </span>
-                        </p>
-                    </div>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                        <p className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            {describeLocation(plant)}
-                        </p>
-                        <p>
-                            Tracked {timeAgo(plant.created_at)}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {plant.description && (
-                <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                    {plant.description}
-                </p>
-            )}
-        </div>
-    );
-}
-
 function RecentDiscoveryRow({
     plant,
     active,
@@ -630,39 +517,35 @@ function RecentDiscoveryRow({
         <button
             type="button"
             onClick={onClick}
-            className={`w-full rounded-xl border p-3 text-left transition-all sm:rounded-2xl ${
+            className={`w-full rounded-xl border p-3 text-left transition-all duration-200 sm:rounded-2xl ${
                 active
-                    ? "border-primary/45 bg-secondary/35 shadow-md"
+                    ? "border-primary/45 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--secondary)_74%,white),color-mix(in_oklch,var(--accent)_16%,white))] shadow-md"
                     : "border-border bg-card/72 hover:border-primary/30 hover:bg-secondary/18"
             }`}
         >
             <div className="flex items-start gap-3">
-                {plant.image_url ? (
-                    <Image
-                        src={plant.image_url}
-                        alt={plant.name}
-                        width={68}
-                        height={68}
-                        className="h-16 w-16 rounded-xl object-cover"
-                    />
-                ) : (
-                    <div className="grid h-16 w-16 place-items-center rounded-xl bg-secondary text-primary">
-                        <Leaf className="h-6 w-6" />
-                    </div>
-                )}
+                <PlantThumb plant={plant} active={active} />
 
                 <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
-                        <p className="truncate text-sm font-black">
-                            {plant.name}
-                        </p>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-black">
+                                {plant.name}
+                            </p>
+                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                                {plant.category || "Uncategorized"} • PID:{" "}
+                                {plant.pid}
+                            </p>
+                        </div>
                         <p className="shrink-0 text-xs text-muted-foreground">
                             {timeAgo(plant.created_at)}
                         </p>
                     </div>
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
+
+                    <p className="mt-2 truncate text-xs text-muted-foreground">
                         {describeLocation(plant)}
                     </p>
+
                     <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                         <Avatar className="size-6 border border-border">
                             <AvatarImage
@@ -673,11 +556,105 @@ function RecentDiscoveryRow({
                                 {initials(plant.user_name)}
                             </AvatarFallback>
                         </Avatar>
-                        <p>{plant.user_name}</p>
+                        <p className="truncate">{plant.user_name}</p>
                     </div>
                 </div>
             </div>
+
+            {active && (
+                <div className="mt-4 overflow-hidden rounded-xl border border-primary/20 bg-background/78 p-3 shadow-sm sm:rounded-2xl">
+                    <div className="flex items-start gap-3">
+                        <PlantThumb plant={plant} active={active} large />
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="rounded-full bg-secondary px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary">
+                                    Recently added
+                                </span>
+                                <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+                                    {plant.category || "No category"}
+                                </span>
+                            </div>
+                            <p className="mt-3 text-base font-black leading-tight">
+                                {plant.name}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                                {plant.description ||
+                                    "Fresh discovery added to the flora map."}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                        <InfoPill
+                            icon={<MapPin className="h-3.5 w-3.5 text-primary" />}
+                            label="Location"
+                            value={describeLocation(plant)}
+                        />
+                        <InfoPill
+                            icon={<Leaf className="h-3.5 w-3.5 text-primary" />}
+                            label="Tracked"
+                            value={timeAgo(plant.created_at)}
+                        />
+                    </div>
+                </div>
+            )}
         </button>
+    );
+}
+
+function PlantThumb({
+    plant,
+    active,
+    large = false,
+}: {
+    plant: Plant;
+    active: boolean;
+    large?: boolean;
+}) {
+    const sizeClass = large ? "h-24 w-24 sm:h-28 sm:w-28" : "h-16 w-16";
+
+    if (plant.image_url) {
+        return (
+            <Image
+                src={plant.image_url}
+                alt={plant.name}
+                width={large ? 112 : 68}
+                height={large ? 112 : 68}
+                className={`${sizeClass} shrink-0 rounded-xl object-cover transition-transform sm:rounded-2xl ${
+                    active ? "scale-[1.02]" : ""
+                }`}
+            />
+        );
+    }
+
+    return (
+        <div
+            className={`${sizeClass} grid shrink-0 place-items-center rounded-xl bg-secondary text-primary sm:rounded-2xl ${
+                active ? "shadow-sm" : ""
+            }`}
+        >
+            <Leaf className={large ? "h-8 w-8" : "h-6 w-6"} />
+        </div>
+    );
+}
+
+function InfoPill({
+    icon,
+    label,
+    value,
+}: {
+    icon: ReactNode;
+    label: string;
+    value: string;
+}) {
+    return (
+        <div className="rounded-xl border border-border bg-card/80 px-3 py-2 sm:rounded-2xl">
+            <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.14em] text-primary">
+                {icon}
+                <span>{label}</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{value}</p>
+        </div>
     );
 }
 

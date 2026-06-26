@@ -60,11 +60,11 @@ export default function DashboardPageContent() {
     userData?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Guest";
 
   return (
-    <main className="min-h-screen bg-background px-4 pb-8 pt-24 text-foreground md:px-20">
+    <main className="min-h-screen bg-background px-4 pb-24 pt-22 text-foreground sm:px-5 sm:pt-24 md:px-10 md:pb-10 xl:px-20">
       <div className="mx-auto max-w-7xl">
         <DashboardHeader displayName={displayName} />
 
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2 lg:gap-8">
           <PlantTrackPanel
             userId={user?.id}
             showPlantForm={showPlantForm}

@@ -16,7 +16,7 @@ const LandingMiniMap = dynamic(() => import("./LandingMiniMap"), {
 
 export function HeroSection({ startHref }: { startHref: string }) {
     return (
-        <section className="flora-full-bleed relative min-h-[100svh] w-screen overflow-visible bg-[radial-gradient(circle_at_14%_42%,color-mix(in_oklch,var(--accent)_36%,transparent),transparent_28%),radial-gradient(circle_at_86%_14%,color-mix(in_oklch,var(--primary)_18%,transparent),transparent_30%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_74%,var(--flora-hero-end)_100%)] px-[clamp(1rem,5vw,5.5rem)] pt-40 sm:pt-12 pb-0 sm:pb-10">
+        <section className="flora-full-bleed relative min-h-[100svh] w-screen overflow-visible bg-[radial-gradient(circle_at_14%_42%,color-mix(in_oklch,var(--accent)_36%,transparent),transparent_28%),radial-gradient(circle_at_86%_14%,color-mix(in_oklch,var(--primary)_18%,transparent),transparent_30%),linear-gradient(180deg,var(--flora-hero-start)_0%,var(--background)_74%,var(--flora-hero-end)_100%)] px-4 pb-0 pt-28 sm:px-6 sm:pb-10 sm:pt-12 lg:px-[clamp(1rem,5vw,5.5rem)]">
             <Image
                 src="/side-plants.png"
                 alt=""
@@ -52,24 +52,22 @@ export function HeroSection({ startHref }: { startHref: string }) {
                         discoveries.
                     </p>
 
-                    <div className="mt-7 flex w-full max-w-xl flex-col gap-3 sm:mt-9 sm:flex-row sm:items-center sm:gap-4">
+                    <div className="mt-7 flex w-full max-w-xl gap-3 sm:mt-9 sm:items-center sm:gap-4">
                         <Button
-                            asChild
-                            className="h-11 w-full justify-between rounded-full bg-primary px-4 text-sm font-black text-primary-foreground shadow-xl shadow-primary/24 hover:bg-primary/90 sm:h-12 sm:w-auto sm:text-base"
+                            className="h-11 rounded-full bg-primary px-6 justify-center text-sm font-black text-primary-foreground shadow-xl shadow-primary/24 hover:bg-primary/90 sm:h-12 sm:w-auto sm:text-base"
                         >
-                            <Link href={startHref} className="gap-4">
+                            <Link href={startHref} className="gap-4 flex items-center">
                                 <Sprout className="h-4 w-4 sm:h-5 sm:w-5" />
-                                <span className="flex-1 text-left">
+                                <span className="flex-1">
                                     Start Your Garden
                                 </span>
                             </Link>
                         </Button>
                         <Button
-                            asChild
                             variant="outline"
-                            className="flora-glass-soft h-11 w-full rounded-full border-border/70 bg-card/70 px-4 text-sm font-black text-primary hover:bg-secondary sm:h-12 sm:w-auto sm:min-w-48 sm:text-base"
+                            className="flora-glass-soft h-11 rounded-full border-border/70 bg-card/70 px-4 text-sm font-black text-primary hover:bg-secondary sm:h-12 sm:w-auto sm:min-w-48 sm:text-base"
                         >
-                            <Link href="/map" className="gap-3">
+                            <Link href="/map" className="gap-3 flex items-center">
                                 <Map className="h-4 w-4 sm:h-5 sm:w-5" />
                                 Explore Map
                             </Link>
@@ -96,6 +94,7 @@ export function HeroSection({ startHref }: { startHref: string }) {
                             Join thousands of plant lovers worldwide
                         </p>
                     </div>
+                    <MobileHeroPeek />
                 </motion.div>
                 <HeroProductCollage />
             </div>
@@ -165,6 +164,29 @@ function HeroProductCollage() {
     );
 }
 
+function MobileHeroPeek() {
+    return (
+        <div className="mt-8 md:hidden">
+            <div className="flora-glass rounded-[1.5rem] border border-border/70 bg-card/82 p-3 shadow-xl shadow-foreground/6">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">
+                            Live Preview
+                        </p>
+                        <p className="font-serif text-lg font-black">
+                            Plant Map
+                        </p>
+                    </div>
+                    <MiniMetric icon={Leaf} value="1,247" label="Plants" />
+                </div>
+                <div className="overflow-hidden rounded-xl border border-border">
+                    <LandingMiniMap />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function MiniMetric({
     icon: Icon,
     value,
@@ -180,7 +202,9 @@ function MiniMetric({
                 <Icon className="h-4 w-4" />
             </span>
             <div>
-                <p className="text-base font-black text-foreground sm:text-lg">{value}</p>
+                <p className="text-base font-black text-foreground sm:text-lg">
+                    {value}
+                </p>
                 <p className="text-[10px] font-semibold text-muted-foreground">
                     {label}
                 </p>

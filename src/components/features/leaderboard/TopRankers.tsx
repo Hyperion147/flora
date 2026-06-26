@@ -9,7 +9,7 @@ export function TopRankers({ users }: { users: LeaderboardUser[] }) {
   }
 
   return (
-    <section className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 md:grid-cols-3">
+    <section className="mb-6 grid grid-cols-1 gap-3 sm:mb-8 md:grid-cols-3 md:gap-4">
       {users.map((user, index) => {
         const rank = index + 1;
 

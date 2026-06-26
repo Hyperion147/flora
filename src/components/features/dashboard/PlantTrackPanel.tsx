@@ -42,10 +42,10 @@ export function PlantTrackPanel({
           showCancelButton
         />
       ) : (
-        <Card className="flora-glass-soft hidden sm:block">
-          <CardContent className="p-6">
+        <Card className="flora-glass-soft">
+          <CardContent className="p-5 sm:p-6">
             <div className="mx-auto max-w-sm text-center">
-              <div className="mx-auto mb-4 grid size-16 place-items-center rounded-full bg-secondary text-primary">
+              <div className="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-secondary text-primary sm:size-16">
                 <Plus className="h-8 w-8" />
               </div>
               <h3 className="font-black">Add Your First Plant</h3>

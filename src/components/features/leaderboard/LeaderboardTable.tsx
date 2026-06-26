@@ -22,7 +22,7 @@ export function LeaderboardTable({
 }) {
   return (
     <Card className="flora-glass-soft overflow-hidden">
-      <CardHeader>
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <span className="grid size-9 place-items-center rounded-2xl bg-secondary text-primary">
             <Trophy className="h-5 w-5" />
@@ -31,7 +31,71 @@ export function LeaderboardTable({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        <div className="space-y-3 px-4 pb-4 md:hidden">
+          {loading ? (
+            Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-border bg-card/55 p-3"
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                  <Skeleton className="h-6 w-12" />
+                </div>
+              </div>
+            ))
+          ) : leaderboard.length === 0 ? (
+            <div className="py-6 text-center">
+              <Trophy className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h3 className="font-black">No data available</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start tracking plants to appear on the leaderboard.
+              </p>
+            </div>
+          ) : (
+            leaderboard.map((user, index) => {
+              const rank = index + 1;
+
+              return (
+                <div
+                  key={user.user_id}
+                  className="rounded-2xl border border-border bg-card/55 p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <RankIcon rank={rank} />
+                      <span className={getRankClassName(rank)}>{rank}</span>
+                    </div>
+                    <Avatar className="size-10">
+                      <AvatarImage
+                        src={user.avatar_url || undefined}
+                        alt={user.user_name}
+                      />
+                      <AvatarFallback className="bg-secondary text-sm font-black text-primary">
+                        {user.user_name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{user.user_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {getRankLabel(rank)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-black">{user.plant_count}</p>
+                      <p className="text-[11px] text-muted-foreground">plants</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>

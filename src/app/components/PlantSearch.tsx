@@ -98,7 +98,7 @@ export default function PlantSearch() {
             <div className="relative mb-6">
                 <Input
                     placeholder="Search by name, user, or PID"
-                    className="flora-glass-soft h-13 rounded-full border-primary/15 bg-card/55 pl-5 pr-12 text-base"
+                    className="flora-glass-soft h-12 rounded-full border-primary/15 bg-card/55 pl-4 pr-10 text-sm sm:h-13 sm:pl-5 sm:text-base"
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
@@ -130,14 +130,14 @@ export default function PlantSearch() {
             {/* Search results */}
             {!showLoading && hasResults && (
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-muted-foreground">
                             Found {searchResults.length} plant
                             {searchResults.length !== 1 ? "s" : ""} for &quot;
                             {debouncedSearchTerm}&quot;
                         </p>
                         <Link href="/map">
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
                                 View Map
                             </Button>
                         </Link>
@@ -146,10 +146,10 @@ export default function PlantSearch() {
                     {searchResults.map((plant) => (
                         <Card
                             key={plant.id}
-                            className="flora-glass-soft z-20 mb-5 transition-shadow hover:shadow-md"
+                            className="flora-glass-soft z-20 mb-5 overflow-hidden transition-shadow hover:shadow-md"
                         >
                             <CardContent className="p-4">
-                                <div className="flex items-start space-x-4">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:space-x-4">
                                     {plant.image_url ? (
                                         <Image
                                             src={plant.image_url}
@@ -173,8 +173,8 @@ export default function PlantSearch() {
                                     >
                                         <MapPin className="h-8 w-8" />
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-start justify-between">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-semibold text-base sm:text-lg truncate">
                                                     {plant.name}
@@ -185,14 +185,14 @@ export default function PlantSearch() {
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                                            <div className="text-xs text-muted-foreground sm:ml-2 sm:flex-shrink-0">
                                                 <span className="font-mono font-semibold text-accent-foreground">
                                                     PID: {plant.pid}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 text-xs text-muted-foreground">
+                                        <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center">
                                             <div className="flex items-center gap-1">
                                                 <User className="h-3 w-3" />
                                                 <span className="truncate">
@@ -268,7 +268,7 @@ export default function PlantSearch() {
                         </div>
                         <div className="mt-4">
                             <Link href="/map">
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto">
                                     Browse All Plants
                                 </Button>
                             </Link>

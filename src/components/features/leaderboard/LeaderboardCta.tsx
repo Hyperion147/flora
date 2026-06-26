@@ -8,7 +8,7 @@ export function LeaderboardCta() {
       <p className="mb-4 text-sm text-muted-foreground">
         Want to climb the leaderboard? Start tracking more plants.
       </p>
-      <div className="flex flex-row justify-center gap-3">
+      <div className="flex flex-col justify-center gap-3 sm:flex-row">
         <Button asChild>
           <Link href="/dashboard">
             <Sprout className="h-4 w-4" />
@@ -25,4 +25,3 @@ export function LeaderboardCta() {
     </section>
   );
 }
-

@@ -28,7 +28,7 @@ export function UserPlantsPanel({
           </span>
           Your Plants
         </h2>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" className="shrink-0">
           <Link href="/map">View All</Link>
         </Button>
       </div>
@@ -79,7 +79,7 @@ function PlantSummaryCard({ plant }: { plant: DashboardPlant }) {
   return (
     <Card className="flora-glass-soft transition-shadow hover:shadow-md">
       <CardContent className="p-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3 sm:gap-4">
           {plant.image_url ? (
             <Image
               src={plant.image_url}
@@ -102,7 +102,7 @@ function PlantSummaryCard({ plant }: { plant: DashboardPlant }) {
                 {plant.description}
               </p>
             )}
-            <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>
                 {createdAt.toLocaleDateString()} at{" "}
@@ -139,4 +139,3 @@ function EmptyPlantsCard({ onAddPlant }: { onAddPlant: () => void }) {
     </Card>
   );
 }
-

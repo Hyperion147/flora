@@ -17,7 +17,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Upload, Camera, AlertCircle, Sparkles, MapPinCheck } from "lucide-react";
+import {
+    ImageIcon,
+    MapPin,
+    MapPinCheck,
+    Sparkles,
+    Sprout,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import CROP_CATEGORIES from "@/lib/cropCategories";
@@ -236,38 +242,43 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
     };
 
     return (
-        <Card className="flora-glass-soft mx-auto w-full">
-            <CardHeader>
-                <CardTitle className="text-xl sm:text-2xl">
-                    Track a New Plant (Global)
-                </CardTitle>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <AlertCircle className="h-3 w-3" />
-                    <span>
-                        You can track plants from anywhere in the world!
-                    </span>
+        <Card className="flora-glass-soft mx-auto w-full overflow-hidden rounded-2xl border border-border/70 bg-background/90 shadow-xl shadow-foreground/5">
+            <CardHeader className="relative overflow-hidden border-b border-border/60 px-6">
+                <div className="pointer-events-none absolute right-0 top-0 h-full w-full opacity-100">
+                    <Image
+                        src="/globe.png"
+                        alt=""
+                        fill
+                        className="object-contain object-right"
+                    />
+                </div>
+                <div className="relative max-w-[calc(100%-5rem)] sm:max-w-[calc(100%-9rem)]">
+                    <CardTitle className="text-xl font-black tracking-tight sm:text-[1.75rem]">
+                    Track a New Plant
+                    </CardTitle>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6">
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
-                        {/* Plant Name */}
                         <FormField
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Plant Name *</FormLabel>
-                                    <div className="flex gap-2">
+                                <FormItem className="space-y-2">
+                                    <FormLabel className="text-sm font-bold">
+                                        Plant Name *
+                                    </FormLabel>
+                                    <div className="flex flex-col gap-2 sm:flex-row">
                                         <FormControl>
                                             <Input
-                                                placeholder="Monstera Deliciosa"
+                                                placeholder="Enter plant name"
                                                 {...field}
                                                 required
-                                                className="flex-1"
+                                                className="h-11 flex-1 rounded-xl border-border bg-background/80"
                                             />
                                         </FormControl>
                                         <Button
@@ -275,7 +286,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                             variant="outline"
                                             onClick={generatePlantInfo}
                                             disabled={isGenerating || !field.value || field.value.length < 2}
-                                            className="shrink-0"
+                                            className="h-11 shrink-0 rounded-xl border-primary/20 bg-secondary/60 px-4 text-primary hover:bg-secondary"
                                         >
                                             {isGenerating ? (
                                                 <span className="animate-spin">↻</span>
@@ -293,16 +304,17 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                             )}
                         />
 
-                        {/* Category */}
                         <FormField
                             control={form.control}
                             name="category"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Category</FormLabel>
+                                <FormItem className="space-y-2">
+                                    <FormLabel className="text-sm font-bold">
+                                        Category
+                                    </FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="h-11 w-full rounded-xl border-border bg-background/80">
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -317,99 +329,115 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                     </Select>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                        />
+                                )}
+                            />
 
-                        {/* Image Upload */}
-                        <FormField
-                            control={form.control}
-                            name="image"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Plant Image *</FormLabel>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                                        <div className="space-y-2">
-                                            <FormControl>
-                                                <Input
+                        <div className="grid gap-4 lg:grid-cols-[0.9fr_1.3fr]">
+                            <FormField
+                                control={form.control}
+                                name="image"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                        <FormLabel className="text-sm font-bold">
+                                            Plant Image *
+                                        </FormLabel>
+                                        <FormControl>
+                                            <label className="block cursor-pointer">
+                                                <input
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => {
                                                         const file =
                                                             e.target.files?.[0];
-                                                        if (file)
+                                                        if (file) {
                                                             handleImageChange(
-                                                                file
+                                                                file,
                                                             );
+                                                        }
                                                     }}
-                                                    className="cursor-pointer"
+                                                    className="sr-only"
                                                     required
                                                 />
-                                            </FormControl>
-                                            <FormMessage />
-                                            <p className="text-xs text-muted-foreground">
-                                                Upload a photo of your plant
-                                                <span className="pl-1 text-xs text-destructive">
-                                                    (max. 10MB)
-                                                </span>
-                                            </p>
-                                            {field.value && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        field.onChange(
-                                                            undefined
-                                                        );
-                                                        setPreviewImage(null);
-                                                    }}
-                                                >
-                                                    Remove Image
-                                                </Button>
-                                            )}
-                                        </div>
-                                        {previewImage && (
-                                            <div className="flex justify-center">
-                                                <Image
-                                                    src={previewImage}
-                                                    alt="Plant preview"
-                                                    width={128}
-                                                    height={128}
-                                                    className="w-32 h-32 object-cover rounded-md border"
-                                                />
-                                            </div>
+                                                <div className="flex min-h-[10rem] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background/70 px-4 py-5 text-center transition-colors hover:border-primary/35 hover:bg-secondary/20">
+                                                    {previewImage ? (
+                                                        <div className="space-y-3">
+                                                            <Image
+                                                                src={previewImage}
+                                                                alt="Plant preview"
+                                                                width={112}
+                                                                height={112}
+                                                                className="mx-auto h-24 w-24 rounded-xl object-cover border border-border"
+                                                            />
+                                                            <p className="text-xs font-semibold text-primary">
+                                                                Click to change image
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="grid size-10 place-items-center rounded-full bg-secondary text-primary">
+                                                                <ImageIcon className="h-5 w-5" />
+                                                            </div>
+                                                            <p className="mt-3 text-sm font-semibold">
+                                                                Click to upload or drag and drop
+                                                            </p>
+                                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                                JPG, PNG up to 10MB
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        </FormControl>
+                                        <FormMessage />
+                                        {field.value && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    field.onChange(undefined);
+                                                    setPreviewImage(null);
+                                                }}
+                                                className="h-8 px-0 text-xs text-muted-foreground hover:text-foreground"
+                                            >
+                                                Remove image
+                                            </Button>
                                         )}
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
+                                    </FormItem>
+                                )}
+                            />
 
-                        {/* Description */}
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Description (optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Describe your plant (species, care tips, etc.)"
-                                            className="resize-none min-h-[100px]"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                        <FormLabel className="text-sm font-bold">
+                                            Description (optional)
+                                        </FormLabel>
+                                        <FormControl>
+                                            <div className="rounded-xl border border-border bg-background/80 p-3">
+                                                <Textarea
+                                                    placeholder="Describe your plant (species, care tips, etc.)"
+                                                    maxLength={300}
+                                                    className="min-h-[136px] resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+                                                    {...field}
+                                                />
+                                                <div className="mt-2 text-right text-xs text-muted-foreground">
+                                                    {field.value?.length || 0}/300
+                                                </div>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
-                        {/* Location Section */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <MapPin className="h-5 w-5 text-muted-foreground" />
-                                <FormLabel>
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                <FormLabel className="text-sm font-bold">
                                     Location *
                                 </FormLabel>
                             </div>
@@ -417,7 +445,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                 type="button"
                                 variant="secondary"
                                 onClick={getCurrentLocation}
-                                className="group relative h-11 w-full overflow-hidden border border-primary/15 bg-secondary px-4 text-[10px] font-black uppercase tracking-wider text-secondary-foreground transition-all hover:bg-accent"
+                                className="group relative h-11 w-full overflow-hidden rounded-xl border border-primary/15 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--secondary)_72%,white),color-mix(in_oklch,var(--accent)_12%,white))] px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent"
                                 disabled={isLocating}
                             >
                                 {isLocating ? (
@@ -432,19 +460,21 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2 transition-colors group-hover:text-primary">
-                                        <Camera className="w-4 h-4" />
+                                        <MapPin className="w-4 h-4" />
                                         Get My Location
                                     </span>
                                 )}
                             </Button>
+                            <p className="text-xs text-muted-foreground">
+                                We&apos;ll use this to geotag your plant discovery
+                            </p>
                         </div>
 
-                        {/* Submit and Cancel Buttons */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-1"
+                                className="h-12 flex-1 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
@@ -453,7 +483,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2">
-                                        <Upload className="w-4 h-4" />
+                                        <Sprout className="w-4 h-4" />
                                         Track This Plant
                                     </span>
                                 )}
@@ -464,7 +494,7 @@ export default function PlantForm({ userId, onCancel, showCancelButton = false }
                                     variant="outline"
                                     onClick={onCancel}
                                     disabled={isSubmitting}
-                                    className="flex-1 sm:flex-initial sm:min-w-[120px]"
+                                    className="h-12 flex-1 rounded-xl border-border bg-background/80 sm:flex-initial sm:min-w-[140px]"
                                 >
                                     Cancel
                                 </Button>

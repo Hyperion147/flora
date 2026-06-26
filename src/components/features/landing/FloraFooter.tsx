@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export function FloraFooter() {
   return (
-    <footer className="flora-full-bleed w-screen border-t border-border bg-background px-[clamp(1rem,5vw,5.5rem)] pt-12">
+    <footer className="flora-full-bleed w-screen border-t border-border bg-background px-4 pb-24 pt-12 sm:px-6 md:pb-12 lg:px-[clamp(1rem,5vw,5.5rem)]">
       <div className="grid w-full gap-10 pb-12 md:grid-cols-[1.55fr_0.9fr_0.9fr_0.9fr_1.35fr]">
         <div>
           <Link href="/" className="flex items-center gap-2 font-serif text-3xl font-black text-primary">
