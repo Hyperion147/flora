@@ -1,66 +1,64 @@
-import { CheckCircle2, Github, Instagram, Mail, Send, Twitter } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
+
+const footerLinks = [
+  {
+    label: "X",
+    href: "https://x.com/suryansu87",
+  },
+  {
+    label: "Portfolio",
+    href: "https://www.suryansu.in/",
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/Hyperion147",
+  },
+];
 
 export function FloraFooter() {
   return (
-    <footer className="flora-full-bleed w-screen border-t border-border bg-background px-4 pb-24 pt-12 sm:px-6 md:pb-12 lg:px-[clamp(1rem,5vw,5.5rem)]">
-      <div className="grid w-full gap-10 pb-12 md:grid-cols-[1.55fr_1.35fr] md:items-start md:justify-between">
-        <div>
-          <Link href="/" className="flex items-center gap-2 font-serif text-3xl font-black text-primary">
-            <Image
-              src="/logo-flora.png"
-              alt="Flora logo"
-              width={40}
-              height={40}
-              className="h-10 w-10 object-contain"
-            />
-            Flora
-          </Link>
-          <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
-            Your digital companion for discovering, tracking, and celebrating plants.
-          </p>
-          <div className="mt-6 flex gap-3">
-            {[Twitter, Instagram, Github, Mail].map((Icon, index) => (
-              <Link
-                key={index}
-                href="#"
-                className="flora-glass-soft flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-secondary"
-              >
-                <Icon className="h-4 w-4" />
-              </Link>
+    <footer className="flora-full-bleed relative w-screen overflow-hidden px-4 pt-8 pb-28 md:pb-0 text-foreground sm:px-8 lg:px-20">
+      <div className="relative z-10 border-t border-border pt-5">
+        <div className="flex flex-col items-center gap-4 text-center text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:text-left md:text-base">
+          <p>© 2026 Flora. All rights reserved.</p>
+
+          <nav
+            aria-label="Footer links"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 sm:justify-end"
+          >
+            {footerLinks.map((link, index) => (
+              <span key={link.label} className="flex items-center gap-2">
+                {index > 0 ? <span className="text-muted-foreground/60">·</span> : null}
+                <Link
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-primary focus-visible:text-primary"
+                >
+                  {link.label}
+                </Link>
+              </span>
             ))}
-          </div>
+          </nav>
         </div>
 
-        <div className="md:justify-self-end">
-          <h3 className="text-sm font-black">Stay in the loop</h3>
-          <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
-            Subscribe to get the latest updates, new features, and plant stories.
-          </p>
-          <form className="flora-glass-soft mt-6 flex max-w-sm rounded-xl p-1">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="min-w-0 flex-1 bg-transparent px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="button"
-              aria-label="Subscribe"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-4 border-t border-border py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 Flora. All rights reserved.</p>
-        <p className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
-          Made with care for nature lovers
-        </p>
+        <Link
+          href="/"
+          aria-label="Flora home"
+          className="mx-auto mt-8 hidden md:flex max-w-full select-none flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-4xl font-black leading-none tracking-normal text-transparent sm:gap-x-4 sm:text-6xl md:text-7xl lg:text-8xl"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, color-mix(in oklch, var(--primary) 22%, transparent) 0%, color-mix(in oklch, var(--primary) 8%, transparent) 58%, color-mix(in oklch, var(--flora-leaf-muted) 46%, transparent) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+          }}
+        >
+          <span>Plant</span>
+          <span>|</span>
+          <span>Track</span>
+          <span>|</span>
+          <span>Grow</span>
+        </Link>
       </div>
     </footer>
   );
