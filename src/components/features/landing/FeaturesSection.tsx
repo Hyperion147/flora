@@ -25,31 +25,37 @@ const features: Array<{
   title: string;
   text: string;
   preview: FeaturePreviewKind;
+  className: string;
 }> = [
   {
     title: "Dashboard",
     text: "A clean personal hub for your sightings, newest plants, and contribution progress.",
     preview: "dashboard",
+    className: "md:col-span-3 xl:col-span-5",
   },
   {
     title: "Plant Form",
     text: "Capture name, image, category, description, and live location without a heavy workflow.",
     preview: "form",
+    className: "md:col-span-3 xl:col-span-3",
   },
   {
     title: "Interactive Map",
     text: "Explore mapped discoveries from across the community with a simple visual layer.",
     preview: "map",
+    className: "md:col-span-6 xl:col-span-4",
   },
   {
     title: "Search",
     text: "Find plants by name, contributor, description, location context, or unique PID.",
     preview: "search",
+    className: "md:col-span-3 xl:col-span-7",
   },
   {
     title: "Leaderboard",
     text: "Make contribution visible and celebrate people who keep documenting plant life.",
     preview: "leaderboard",
+    className: "md:col-span-3 xl:col-span-5",
   },
 ];
 
@@ -127,7 +133,7 @@ export function FeaturesSection() {
         </h2>
       </div>
 
-      <div className="relative z-10 mt-10 grid w-full gap-4 sm:mt-12 sm:gap-5 md:grid-cols-2 xl:grid-cols-5">
+      <div className="relative z-10 mt-10 grid w-full auto-rows-fr gap-4 sm:mt-12 sm:gap-5 md:grid-cols-6 xl:grid-cols-12">
         {features.map((feature, index) => (
           <motion.article
             key={feature.title}
@@ -135,14 +141,16 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ delay: index * 0.05 }}
-            className="flora-glass group flex min-h-[31rem] flex-col rounded-2xl px-4 py-4 transition-all hover:-translate-y-px sm:min-h-[34rem] sm:px-5 xl:min-h-[36rem]"
+            className={`flora-glass group flex min-h-[31rem] flex-col rounded-2xl px-4 py-4 transition-all hover:-translate-y-px sm:min-h-[34rem] sm:px-5 ${feature.className}`}
           >
-            <h3 className="text-lg font-black text-card-foreground sm:text-xl">
-              {feature.title}
-            </h3>
-            <p className="mt-2 min-h-[72px] text-xs leading-5 text-muted-foreground sm:min-h-[88px] sm:text-sm sm:leading-6">
-              {feature.text}
-            </p>
+            <div className="max-w-xl">
+              <h3 className="text-lg font-black text-card-foreground sm:text-xl">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground sm:text-sm sm:leading-6">
+                {feature.text}
+              </p>
+            </div>
             <FeaturePreview kind={feature.preview} />
             <a
               href={feature.preview === "dashboard" ? "/dashboard" : feature.preview === "map" ? "/map" : feature.preview === "search" ? "/search" : feature.preview === "leaderboard" ? "/leaderboard" : "/dashboard"}

@@ -4,7 +4,7 @@ import Image from "next/image";
 export function ImpactSection() {
   return (
     <section className="flora-full-bleed relative w-screen overflow-hidden bg-[var(--flora-section)] px-4 py-8 sm:px-6 sm:py-10 lg:px-[clamp(1rem,5vw,5.5rem)]">
-      <div className="relative overflow-hidden rounded-[2rem] bg-[var(--flora-deep)] px-5 py-8 text-primary-foreground shadow-xl sm:px-7 sm:py-10 lg:px-[clamp(1.5rem,4vw,4rem)] lg:py-12">
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--flora-deep)] px-5 py-8 text-primary-foreground shadow-xl sm:px-7 sm:py-10 lg:px-[clamp(1.5rem,4vw,4rem)] lg:py-12">
         <Image
           src="/hero-plants.png"
           alt=""
@@ -27,8 +27,8 @@ export function ImpactSection() {
             {impactStats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="rounded-2xl border border-primary-foreground/45 bg-primary-foreground/92 p-3 text-center text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md sm:rounded-3xl sm:p-4">
-                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary sm:mb-4 sm:h-14 sm:w-14 sm:rounded-2xl">
+                <div key={stat.label} className="rounded-2xl border border-primary-foreground/45 bg-primary-foreground/92 p-3 text-center text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md sm:rounded-xl sm:p-4">
+                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary sm:mb-4 sm:h-14 sm:w-14">
                     <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   <p className="text-2xl font-black text-primary sm:text-3xl lg:text-4xl">{stat.value}</p>
