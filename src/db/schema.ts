@@ -12,6 +12,7 @@ export const plants = pgTable('plants', {
   lat: doublePrecision('lat').notNull(),
   lng: doublePrecision('lng').notNull(),
   imageUrl: text('image_url'),
+  userAvatarUrl: text('user_avatar_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [

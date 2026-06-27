@@ -271,9 +271,6 @@ function DashboardCard() {
                     <h3 className="font-serif text-lg font-black">
                         Welcome, Suryansu Code!
                     </h3>
-                    <p className="text-[10px] text-muted-foreground">
-                        Track your plants and see your collection grow.
-                    </p>
                 </div>
             </div>
             <div className="mt-4 rounded-lg border border-border bg-card/72 p-3">

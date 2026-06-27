@@ -22,7 +22,7 @@ export function LeaderboardTable({
 }) {
   return (
     <Card className="flora-glass-soft overflow-hidden">
-      <CardHeader className="pb-4">
+      <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span className="grid size-9 place-items-center rounded-2xl bg-secondary text-primary">
             <Trophy className="h-5 w-5" />

@@ -100,6 +100,8 @@ export async function createPlant(
 ) {
   const uploadedImage = await uploadPlantImage(admin, user.id, input.image);
   const userName = getUserDisplayName(user);
+  const userAvatarUrl =
+    user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
 
   try {
     let lastError: unknown = null;
@@ -117,6 +119,7 @@ export async function createPlant(
           lat: input.lat,
           lng: input.lng,
           image_url: uploadedImage.publicUrl,
+          user_avatar_url: userAvatarUrl,
           pid,
         })
         .select()
@@ -125,8 +128,7 @@ export async function createPlant(
       if (!error && data) {
         return mapPlantRow({
           ...(data as PlantRow),
-          user_avatar_url:
-            user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+          user_avatar_url: userAvatarUrl,
         });
       }
 
@@ -200,7 +202,7 @@ export async function getLeaderboard(supabase: SupabaseClient, limit = 50) {
 
   const { data: plants, error: fetchError } = await supabase
     .from("plants")
-    .select("user_id,user_name");
+    .select("user_id,user_name,user_avatar_url");
 
   if (fetchError) {
     throw new HttpError("Failed to fetch leaderboard", 500, fetchError.message);
@@ -211,18 +213,20 @@ export async function getLeaderboard(supabase: SupabaseClient, limit = 50) {
   for (const plant of (plants || []) as Array<{
     user_id?: string;
     user_name?: string;
+    user_avatar_url?: string | null;
   }>) {
     if (!plant.user_id || !plant.user_name) continue;
 
     const existing = leaderboard.get(plant.user_id);
     if (existing) {
       existing.plant_count = Number(existing.plant_count) + 1;
+      existing.avatar_url = existing.avatar_url || plant.user_avatar_url || null;
     } else {
       leaderboard.set(plant.user_id, {
         user_id: plant.user_id,
         user_name: plant.user_name,
         plant_count: 1,
-        avatar_url: null,
+        avatar_url: plant.user_avatar_url || null,
       });
     }
   }
