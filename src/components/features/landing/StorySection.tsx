@@ -40,16 +40,17 @@ export function StorySection({ startHref }: { startHref: string }) {
           </div>
         </div>
 
-        <div className="flora-glass-dark relative min-h-[20rem] overflow-hidden rounded-2xl bg-(--flora-deep)] p-6 text-primary-foreground sm:min-h-[21rem] sm:p-7 lg:min-h-85 lg:p-8">
+        <div className="relative min-h-[20rem] overflow-hidden rounded-2xl bg-[var(--flora-deep)] p-6 text-primary-foreground shadow-xl sm:min-h-[21rem] sm:p-7 lg:min-h-[21.25rem] lg:p-8">
           <Image
             src="/hero-plants.png"
             alt=""
             fill
-            className="pointer-events-none object-cover opacity-35"
+            className="pointer-events-none object-cover opacity-45"
           />
-          <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklch,var(--flora-deep)_86%,black_14%)_0%,color-mix(in_oklch,var(--flora-deep)_72%,transparent)_48%,color-mix(in_oklch,var(--flora-deep)_42%,transparent)_100%)]" />
+          <div className="relative z-10 flex min-h-[calc(20rem-3rem)] flex-col justify-between gap-10 sm:min-h-[calc(21rem-3.5rem)] lg:min-h-[calc(21.25rem-4rem)]">
             <div>
-              <h2 className="max-w-xl font-serif text-3xl font-black sm:text-4xl lg:text-5xl">
+              <h2 className="max-w-xl text-balance font-serif text-3xl font-black leading-tight sm:text-4xl lg:text-[2.75rem]">
                 Ready to Start Your Botanical Journey?
               </h2>
               <p className="mt-3 max-w-lg text-sm leading-6 text-primary-foreground/82 sm:mt-4 sm:text-base sm:leading-7">
@@ -66,7 +67,7 @@ export function StorySection({ startHref }: { startHref: string }) {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 w-full rounded-xl border-primary-foreground/40 bg-primary-foreground/5 text-primary-foreground hover:bg-primary-foreground/50 text-shadow-2xs backdrop-blur-md"
+                className="h-12 w-full rounded-xl border-primary-foreground/45 bg-primary-foreground/10 text-primary-foreground backdrop-blur-md hover:bg-primary-foreground/20 hover:text-primary-foreground"
               >
                 <Link href="/map">Explore the Map</Link>
               </Button>
