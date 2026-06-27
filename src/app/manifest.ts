@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Discover, track, map, and celebrate plants around the world with Flora.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f7f6f1",
-    theme_color: "#2d7d4f",
+    background_color: "#fcfbf7",
+    theme_color: "#267543",
     icons: [
       {
         src: "/favicon/android-chrome-192x192.png",

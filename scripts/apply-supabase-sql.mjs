@@ -16,6 +16,7 @@ const root = process.cwd();
 const migrationFiles = [
   "supabase/migrations/20260623000100_plants_schema_and_rls.sql",
   "supabase/migrations/20260624000100_plant_pid_and_leaderboard.sql",
+  "supabase/migrations/20260627000100_public_user_avatars.sql",
 ];
 
 const sql = postgres(databaseUrl, {

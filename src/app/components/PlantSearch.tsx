@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, User, Calendar, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, User, Calendar, MapPin } from "lucide-react";
 import { Plant } from "@/lib/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -33,17 +33,40 @@ function useDebounce<T>(value: T, delay: number): T {
 export default function PlantSearch() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [page, setPage] = useState(1);
     const debouncedSearchTerm = useDebounce(searchTerm, 300); // Increased to 500ms for better UX
+    const pageSize = 20;
 
     // Track if user is currently typing
     useEffect(() => {
         setIsTyping(searchTerm !== debouncedSearchTerm);
     }, [searchTerm, debouncedSearchTerm]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearchTerm]);
+
+    const {
+        data: latestPlants,
+        isLoading: isLatestLoading,
+        error: latestError,
+    } = useQuery({
+        queryKey: ["plants", "latest"],
+        queryFn: async (): Promise<Plant[]> => {
+            const response = await fetch("/api/plants");
+            if (!response.ok) {
+                throw new Error("Failed to load plants");
+            }
+            return await response.json();
+        },
+        staleTime: 5 * 60 * 1000,
+        retry: 2,
+    });
+
     const {
         data: plants,
-        isLoading,
-        error,
+        isLoading: isSearchLoading,
+        error: searchError,
     } = useQuery({
         queryKey: ["search", debouncedSearchTerm],
         queryFn: async (): Promise<Plant[]> => {
@@ -66,11 +89,18 @@ export default function PlantSearch() {
 
     // Handle search errors
     useEffect(() => {
-        if (error) {
-            console.error("Search error:", error);
+        if (searchError) {
+            console.error("Search error:", searchError);
             toast.error("Failed to search plants. Please try again.");
         }
-    }, [error]);
+    }, [searchError]);
+
+    useEffect(() => {
+        if (latestError) {
+            console.error("Latest plants error:", latestError);
+            toast.error("Failed to load latest plants.");
+        }
+    }, [latestError]);
 
     const handleSearchChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,42 +109,41 @@ export default function PlantSearch() {
         []
     );
 
-    useCallback(() => {
-        setSearchTerm("");
-    }, []);
-
-    // Memoize search results to prevent unnecessary re-renders
-    const searchResults = useMemo(() => {
-        if (!plants) return [];
-        return plants;
-    }, [plants]);
-
-    const showLoading = isLoading || isTyping;
-    const hasResults = searchResults && searchResults.length > 0;
+    const searchResults = useMemo(() => plants ?? [], [plants]);
+    const latestResults = useMemo(() => latestPlants ?? [], [latestPlants]);
     const hasSearched = debouncedSearchTerm.trim().length > 0;
+    const activeResults = hasSearched ? searchResults : latestResults;
+    const showLoading = isTyping || (hasSearched ? isSearchLoading : isLatestLoading);
+    const hasResults = activeResults.length > 0;
+    const totalPages = Math.max(1, Math.ceil(activeResults.length / pageSize));
+    const currentPage = Math.min(page, totalPages);
+    const paginatedResults = activeResults.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
+    );
+    const startIndex = hasResults ? (currentPage - 1) * pageSize + 1 : 0;
+    const endIndex = hasResults
+        ? Math.min(currentPage * pageSize, activeResults.length)
+        : 0;
 
     return (
-        <div className="mx-auto w-full max-w-3xl">
-            <div className="relative mb-6">
+        <div className="mx-auto w-full max-w-6xl">
+            <div className="relative mb-5">
                 <Input
                     placeholder="Search by name, user, or PID"
-                    className="flora-glass-soft h-12 rounded-full border-primary/15 bg-card/55 pl-4 pr-10 text-sm sm:h-13 sm:pl-5 sm:text-base"
+                    className="flora-glass-soft h-12 rounded-2xl border-primary/15 bg-card/55 pl-4 pr-10 text-sm sm:h-13 sm:pl-5 sm:text-base"
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
-                <div className="my-2">
-                    <p className="text-xs text-muted-foreground">You can search by Plant Id, name, or user.</p>
-                </div>
             </div>
 
-            {/* Loading skeleton */}
             {showLoading && (
-                <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, i) => (
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
                         <Card key={i} className="flora-glass-soft">
-                            <CardContent className="p-4">
-                                <div className="flex items-start space-x-4">
-                                    <Skeleton className="w-16 h-16 rounded-md flex-shrink-0" />
+                            <CardContent>
+                                <div className="flex items-start gap-3">
+                                    <Skeleton className="h-14 w-14 rounded-md flex-shrink-0" />
                                     <div className="flex-1 space-y-2">
                                         <Skeleton className="h-4 w-3/4" />
                                         <Skeleton className="h-3 w-1/2" />
@@ -127,14 +156,13 @@ export default function PlantSearch() {
                 </div>
             )}
 
-            {/* Search results */}
             {!showLoading && hasResults && (
                 <div className="space-y-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-muted-foreground">
-                            Found {searchResults.length} plant
-                            {searchResults.length !== 1 ? "s" : ""} for &quot;
-                            {debouncedSearchTerm}&quot;
+                            {hasSearched
+                                ? `Showing ${startIndex}-${endIndex} of ${activeResults.length} results for "${debouncedSearchTerm}"`
+                                : `Showing ${startIndex}-${endIndex} of ${activeResults.length} latest plants`}
                         </p>
                         <Link href="/map">
                             <Button variant="outline" size="sm" className="w-full sm:w-auto">
@@ -143,20 +171,21 @@ export default function PlantSearch() {
                         </Link>
                     </div>
 
-                    {searchResults.map((plant) => (
-                        <Card
-                            key={plant.id}
-                            className="flora-glass-soft z-20 mb-5 overflow-hidden transition-shadow hover:shadow-md"
-                        >
-                            <CardContent className="p-4">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:space-x-4">
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        {paginatedResults.map((plant) => (
+                            <Card
+                                key={plant.id}
+                                className="flora-glass-soft z-20 overflow-hidden transition-shadow hover:shadow-md"
+                            >
+                                <CardContent className="px-3 sm:px-3.5">
+                                    <div className="flex items-start gap-3">
                                     {plant.image_url ? (
                                         <Image
                                             src={plant.image_url}
                                             alt={plant.name}
                                             width={80}
                                             height={80}
-                                            className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md flex-shrink-0"
+                                            className="h-14 w-14 rounded-md object-cover flex-shrink-0 sm:h-16 sm:w-16"
                                             onError={(e) => {
                                                 e.currentTarget.style.display =
                                                     "none";
@@ -167,20 +196,20 @@ export default function PlantSearch() {
                                         />
                                     ) : null}
                                     <div
-                                        className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-secondary text-primary sm:h-20 sm:w-20 ${
+                                        className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-secondary text-primary sm:h-16 sm:w-16 ${
                                             plant.image_url ? "hidden" : ""
                                         }`}
                                     >
-                                        <MapPin className="h-8 w-8" />
+                                        <MapPin className="h-6 w-6" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="font-semibold text-base sm:text-lg truncate">
+                                                <h3 className="truncate text-sm font-semibold sm:text-base">
                                                     {plant.name}
                                                 </h3>
                                                 {plant.description && (
-                                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
                                                         {plant.description}
                                                     </p>
                                                 )}
@@ -192,7 +221,7 @@ export default function PlantSearch() {
                                             </div>
                                         </div>
 
-                                        <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center">
+                                        <div className="mt-2 flex flex-col gap-1.5 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:text-xs">
                                             <div className="flex items-center gap-1">
                                                 <User className="h-3 w-3" />
                                                 <span className="truncate">
@@ -212,7 +241,7 @@ export default function PlantSearch() {
                                         </div>
 
                                         {plant.lat && plant.lng && (
-                                            <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                                            <div className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground sm:text-xs">
                                                 <MapPin className="h-3 w-3" />
                                                 <span>
                                                     {plant.lat.toFixed(4)},{" "}
@@ -222,57 +251,58 @@ export default function PlantSearch() {
                                         )}
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card/55 px-4 py-3">
+                            <p className="text-sm text-muted-foreground">
+                                Page {currentPage} of {totalPages}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={currentPage === 1}
+                                    onClick={() =>
+                                        setPage((value) => Math.max(1, value - 1))
+                                    }
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Previous
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() =>
+                                        setPage((value) =>
+                                            Math.min(totalPages, value + 1),
+                                        )
+                                    }
+                                >
+                                    Next
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* No results */}
             {!showLoading && hasSearched && !hasResults && (
                 <Card className="flora-glass-soft">
-                    <CardContent className="p-8 text-center">
+                    <CardContent className="px-8 text-center">
                         <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
                             <Search className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <h3 className="font-semibold mb-2">No plants found</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            No plants found for &quot;{debouncedSearchTerm}
-                            &quot;. Try searching with different keywords.
+                        <p className="text-sm text-muted-foreground">
+                            Try another plant name, PID, or contributor.
                         </p>
-                        <div className="space-y-2">
-                            <p className="text-xs text-muted-foreground">
-                                Try searching for:
-                            </p>
-                            <div className="flex flex-wrap gap-2 justify-center">
-                                {[
-                                    "Monstera",
-                                    "Fiddle Leaf",
-                                    "Snake Plant",
-                                    "Pothos",
-                                    "ZZ Plant",
-                                ].map((suggestion) => (
-                                    <Button
-                                        key={suggestion}
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            setSearchTerm(suggestion)
-                                        }
-                                        className="text-xs"
-                                    >
-                                        {suggestion}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            <Link href="/map">
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                                    Browse All Plants
-                                </Button>
-                            </Link>
-                        </div>
                     </CardContent>
                 </Card>
             )}
