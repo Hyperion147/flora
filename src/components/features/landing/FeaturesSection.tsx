@@ -99,7 +99,6 @@ const leaderboardRows = {
     ["BloomBot", "1,234"],
     ["NeemScout", "1,102"],
     ["HerbHunter", "984"],
-    ["GardenGuru", "876"],
   ],
   month: [
     ["NeemScout", "428"],
@@ -109,7 +108,6 @@ const leaderboardRows = {
     ["LeafExplorer", "288"],
     ["AloeAce", "244"],
     ["TreeMapper", "219"],
-    ["RootRider", "184"],
   ],
 };
 
@@ -141,7 +139,7 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ delay: index * 0.05 }}
-            className={`flora-glass group flex min-h-[31rem] flex-col rounded-2xl px-4 py-4 transition-all hover:-translate-y-px sm:min-h-[34rem] sm:px-5 ${feature.className}`}
+            className={`flora-glass group flex min-h-[30rem] flex-col rounded-2xl px-4 py-4 transition-all hover:-translate-y-px sm:px-5 ${feature.className}`}
           >
             <div className="max-w-xl">
               <h3 className="text-lg font-black text-card-foreground sm:text-xl">
@@ -293,7 +291,7 @@ function SearchPreview() {
         />
       </label>
       <p className="text-xs font-black">Results</p>
-      <div className="h-[280px] space-y-2 overflow-hidden">
+      <div className="h-[300px] space-y-2 overflow-hidden">
         {results.length ? (
           results.map((plant, index) => (
             <motion.div
@@ -420,7 +418,7 @@ function LeaderboardPreview() {
 
 function PlantPhoto() {
   return (
-    <div className="relative h-30 overflow-hidden rounded-xl border border-border bg-[linear-gradient(135deg,var(--secondary),var(--card))]">
+    <div className="relative h-26 overflow-hidden rounded-xl border border-border bg-[linear-gradient(135deg,var(--secondary),var(--card))]">
       <div className="absolute inset-x-0 bottom-0 h-10 bg-[linear-gradient(180deg,transparent,var(--flora-leaf-muted))]" />
       <div className="absolute inset-0 grid place-items-center">
         <div className="grid size-14 place-items-center rounded-2xl bg-card/80 text-primary shadow-lg shadow-foreground/5">

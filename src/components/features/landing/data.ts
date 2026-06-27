@@ -89,17 +89,3 @@ export const steps = [
   },
 ];
 
-export const footerColumns = [
-  {
-    title: "Product",
-    links: ["Features", "Map", "Dashboard", "Search", "Leaderboard", "API Docs"],
-  },
-  {
-    title: "Community",
-    links: ["About Us", "Blog", "Guidelines", "Support", "Contributors"],
-  },
-  {
-    title: "Legal",
-    links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Data Policy"],
-  },
-];

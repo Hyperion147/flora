@@ -1,4 +1,3 @@
-import { footerColumns } from "./data";
 import { CheckCircle2, Github, Instagram, Mail, Send, Twitter } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +5,7 @@ import Link from "next/link";
 export function FloraFooter() {
   return (
     <footer className="flora-full-bleed w-screen border-t border-border bg-background px-4 pb-24 pt-12 sm:px-6 md:pb-12 lg:px-[clamp(1rem,5vw,5.5rem)]">
-      <div className="grid w-full gap-10 pb-12 md:grid-cols-[1.55fr_0.9fr_0.9fr_0.9fr_1.35fr]">
+      <div className="grid w-full gap-10 pb-12 md:grid-cols-[1.55fr_1.35fr] md:items-start md:justify-between">
         <div>
           <Link href="/" className="flex items-center gap-2 font-serif text-3xl font-black text-primary">
             <Image
@@ -34,11 +33,7 @@ export function FloraFooter() {
           </div>
         </div>
 
-        {footerColumns.map((column) => (
-          <FooterColumn key={column.title} title={column.title} links={column.links} />
-        ))}
-
-        <div>
+        <div className="md:justify-self-end">
           <h3 className="text-sm font-black">Stay in the loop</h3>
           <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
             Subscribe to get the latest updates, new features, and plant stories.
@@ -68,20 +63,5 @@ export function FloraFooter() {
         </p>
       </div>
     </footer>
-  );
-}
-
-function FooterColumn({ title, links }: { title: string; links: string[] }) {
-  return (
-    <div>
-      <h3 className="text-sm font-black">{title}</h3>
-      <div className="mt-5 flex flex-col gap-3">
-        {links.map((link) => (
-          <Link key={link} href="#" className="text-sm text-muted-foreground hover:text-primary">
-            {link}
-          </Link>
-        ))}
-      </div>
-    </div>
   );
 }

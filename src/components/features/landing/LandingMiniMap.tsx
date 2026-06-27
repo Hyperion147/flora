@@ -81,7 +81,7 @@ export default function LandingMiniMap() {
   return (
     <div
       ref={containerRef}
-      className="landing-mini-map h-[300px] overflow-hidden rounded-sm"
+      className="landing-mini-map h-[400px] overflow-hidden rounded-sm"
     />
   );
 }
